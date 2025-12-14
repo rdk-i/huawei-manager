@@ -47,7 +47,6 @@ function index()
     entry({"admin", "modem", "huawei-manager", "api", "modem", "apn_create"}, call("action_modem_apn_create")).leaf = true
     entry({"admin", "modem", "huawei-manager", "api", "modem", "apn_delete"}, call("action_modem_apn_delete")).leaf = true
     entry({"admin", "modem", "huawei-manager", "api", "modem", "apn_default"}, call("action_modem_apn_default")).leaf = true
-    entry({"admin", "modem", "huawei-manager", "api", "modem", "ussd"}, call("action_modem_ussd")).leaf = true
     
     -- SMS API endpoints
     entry({"admin", "modem", "huawei-manager", "api", "modem", "sms_list"}, call("action_modem_sms_list")).leaf = true
@@ -414,31 +413,6 @@ function action_modem_apn_default()
     
     local json = require "luci.jsonc"
     local result = exec_modem_api(section_id, "apn_default", json.stringify({profile_id = profile_id}))
-    luci.http.prepare_content("application/json")
-    luci.http.write_json(result)
-end
-
-function action_modem_ussd()
-    local section_id = luci.http.formvalue("device")
-    local code = luci.http.formvalue("code")
-
-    if not section_id or not code then
-        luci.http.status(400, "Bad Request")
-        luci.http.prepare_content("application/json")
-        luci.http.write_json({error = "Missing required parameters"})
-        return
-    end
-
-    -- Validate USSD code format (security measure)
-    if not code:match("^[%*#%d]+$") then
-        luci.http.status(400, "Bad Request")
-        luci.http.prepare_content("application/json")
-        luci.http.write_json({error = "Invalid USSD code format. Only *, #, and digits allowed."})
-        return
-    end
-
-    local json = require "luci.jsonc"
-    local result = exec_modem_api(section_id, "ussd", json.stringify({code = code}))
     luci.http.prepare_content("application/json")
     luci.http.write_json(result)
 end

@@ -164,20 +164,6 @@ def action_apn_default(client, data):
     client.dial_up.set_default_profile(profile_id)
     return {"message": "Default APN set"}
 
-def action_ussd(client, data):
-    """Send USSD code."""
-    code = data.get('code')
-    if not code:
-        return {"error": "USSD code required"}
-
-    # Validate USSD code format (security measure)
-    import re
-    if not re.match(r'^[*#0-9]+$', code):
-        return {"error": "Invalid USSD code format. Only *, #, and digits allowed."}
-
-    result = client.ussd.send(code)
-    return {"content": result}
-
 # ===== SMS Functions =====
 
 def action_sms_list(client, data=None):
@@ -235,7 +221,7 @@ def main():
     parser.add_argument("--password", type=str, default="admin")
     parser.add_argument("--action", type=str, required=True,
                         choices=["info", "reboot", "toggle_data", "bands", "bands_list",
-                                 "apn_list", "apn_create", "apn_delete", "apn_default", "ussd",
+                                 "apn_list", "apn_create", "apn_delete", "apn_default",
                                  "sms_list", "sms_send", "sms_delete", "sms_read", "sms_count"])
     parser.add_argument("--data", type=str, default="{}", help="JSON data for action")
     args = parser.parse_args()
@@ -285,8 +271,6 @@ def main():
                 result = action_apn_delete(client, data)
             elif args.action == "apn_default":
                 result = action_apn_default(client, data)
-            elif args.action == "ussd":
-                result = action_ussd(client, data)
             elif args.action == "sms_list":
                 result = action_sms_list(client, data if data else None)
             elif args.action == "sms_send":

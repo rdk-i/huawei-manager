@@ -2,7 +2,7 @@
 
 Comprehensive Huawei LTE modem management tool for OpenWrt. This package combines real-time dashboard monitoring, IP automation (IP Agent), network configuration, SMS management, and Telegram notifications in a single, intuitive interface.
 
-![Dashboard Screenshot](docs/dashboard.png)
+![Dashboard Screenshot](screenshot/ss-1.jpg)
 
 ## Features
 
@@ -64,20 +64,44 @@ Comprehensive Huawei LTE modem management tool for OpenWrt. This package combine
 
 ## Installation
 
-### Option 1: Pre-built Package
+### Option 1: Quick Install (Recommended)
+
+Jalankan command berikut di terminal OpenWrt:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh | sh
+```
+
+Atau unduh dan jalankan script secara manual:
+
+```bash
+wget https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+Script ini menyediakan menu interaktif untuk:
+- **Install** - Instal Huawei Manager dari rilis terbaru
+- **Update** - Perbarui ke versi terbaru (konfigurasi user tetap terjaga)
+- **Remove** - Hapus Huawei Manager
+
+### Option 2: Manual Install (Pre-built Package)
 
 ```bash
 # Install dependencies
 opkg update
 opkg install python3 python3-pip
 
+# Download latest release from GitHub
+wget https://github.com/rdk-i/huawei-manager/releases/latest/download/huawei-manager_1.0.0-1_all.ipk
+
 # Install package
-opkg install huawei-manager_1.1.0-1_all.ipk
+opkg install huawei-manager_1.0.0-1_all.ipk
 
 # The package will auto-install huawei-lte-api
 ```
 
-### Option 2: Build from Source
+### Option 3: Build from Source
 
 ```bash
 # In WSL/Linux with OpenWrt SDK
@@ -162,6 +186,8 @@ Tested with:
 ```
 huawei-manager/
 ├── Makefile                         # OpenWrt package definition
+├── install.sh                       # Interactive installer script
+├── build.sh                         # Build script for SDK
 ├── files/
 │   ├── etc/
 │   │   ├── config/huawei-manager    # UCI configuration
@@ -222,29 +248,6 @@ The package handles self-signed certificates automatically. If issues persist:
 
 - Try using HTTP instead of HTTPS
 - Ensure modem firmware is up to date
-
-## Changelog
-
-### v1.1.0
-
-- Added SMS management (inbox, send, bulk actions)
-- Added default device selection (per-browser)
-- Improved Quick Actions layout (2-column grid)
-- Fixed dashboard refresh behavior (no flickering)
-- Fixed band display for H153-381 modem format
-- Fixed Connected Band display with CA support
-- Improved log level filter functionality
-- Removed redundant Global Settings Log Level
-- Fixed tab navigation from Quick Actions
-
-### v1.0.0
-
-- Initial release
-- Dashboard with signal, traffic, device info
-- IP Agent with multi-device support
-- Network settings (bands, APN, USSD)
-- Telegram notifications
-- Log viewer
 
 ## License
 

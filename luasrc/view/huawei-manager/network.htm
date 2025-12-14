@@ -1,5 +1,5 @@
 <%# Huawei Manager - Network Settings View %>
-<%# Band Selection, APN Management, USSD %>
+<%# Band Selection, APN Management %>
 
 <style type="text/css">
 .hm-network {
@@ -235,44 +235,6 @@
     border-radius: 4px;
 }
 
-/* USSD */
-.hm-ussd-input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-.hm-ussd-input-group input {
-    flex: 1;
-}
-.hm-ussd-response {
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 15px;
-    min-height: 100px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    color: #4CAF50;
-}
-.hm-ussd-presets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 15px;
-}
-.hm-ussd-preset {
-    background: #333;
-    color: #fff;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-}
-.hm-ussd-preset:hover {
-    background: #444;
-}
-
 /* Loading */
 .hm-loading-overlay {
     position: fixed;
@@ -426,9 +388,6 @@
     .hm-tabs {
         flex-wrap: wrap;
     }
-    .hm-ussd-input-group {
-        flex-direction: column;
-    }
 }
 </style>
 
@@ -445,7 +404,6 @@
     <div class="hm-tabs">
         <button class="hm-tab active" onclick="switchTab('bands')">📶 Band Selection</button>
         <button class="hm-tab" onclick="switchTab('apn')">📡 APN Management</button>
-        <button class="hm-tab" onclick="switchTab('ussd')">📞 USSD</button>
     </div>
     
     <!-- Band Selection Tab -->
@@ -521,34 +479,6 @@
         </div>
     </div>
     
-    <!-- USSD Tab -->
-    <div id="tab-ussd" class="hm-tab-content">
-        <div class="hm-network-card">
-            <div class="hm-network-card-title">📞 USSD Code</div>
-            
-            <div class="hm-form-group">
-                <label class="hm-form-label">Common Codes</label>
-                <div class="hm-ussd-presets">
-                    <button class="hm-ussd-preset" onclick="setUssd('*888#')">*888# (Balance)</button>
-                    <button class="hm-ussd-preset" onclick="setUssd('*123#')">*123# (Menu)</button>
-                    <button class="hm-ussd-preset" onclick="setUssd('*111#')">*111# (Info)</button>
-                    <button class="hm-ussd-preset" onclick="setUssd('*100#')">*100# (Balance)</button>
-                </div>
-            </div>
-            
-            <div class="hm-ussd-input-group">
-                <input type="text" id="ussd-code" class="hm-form-input" placeholder="*888#">
-                <button class="hm-btn" onclick="sendUssd()">📤 Send</button>
-            </div>
-            
-            <div class="hm-form-group">
-                <label class="hm-form-label">Response</label>
-                <div id="ussd-response" class="hm-ussd-response">
-                    Enter a USSD code and click Send to see the response.
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Loading Overlay -->
@@ -930,37 +860,6 @@ function setDefaultApn(profileId) {
     });
 }
 
-// ===== USSD =====
-
-function setUssd(code) {
-    document.getElementById('ussd-code').value = code;
-}
-
-function sendUssd() {
-    var code = document.getElementById('ussd-code').value;
-    if (!code) {
-        showToast('Please enter a USSD code', 'warning');
-        return;
-    }
-    
-    var responseDiv = document.getElementById('ussd-response');
-    responseDiv.innerText = 'Sending...';
-    responseDiv.style.color = '#888';
-    
-    showLoading();
-    fetchJSON(apiBase + '/modem/ussd?device=' + encodeURIComponent(currentDevice) + '&code=' + encodeURIComponent(code), function(err, result) {
-        hideLoading();
-        
-        if (result && result.success && result.data) {
-            responseDiv.innerText = result.data.content || result.data.Content || JSON.stringify(result.data, null, 2);
-            responseDiv.style.color = '#4CAF50';
-        } else {
-            responseDiv.innerText = 'Error: ' + (result ? result.error : 'Request failed');
-            responseDiv.style.color = '#f44336';
-        }
-    });
-}
-
 // Initialize
 renderBandGrid();
 loadDevices();
@@ -974,8 +873,7 @@ loadDevices();
         var tabButtons = document.querySelectorAll('.hm-tab');
         var tabMap = {
             'bands': 0,
-            'apn': 1,
-            'ussd': 2
+            'apn': 1
         };
         var tabIndex = tabMap[tabParam.toLowerCase()];
         if (tabIndex !== undefined && tabButtons[tabIndex]) {
