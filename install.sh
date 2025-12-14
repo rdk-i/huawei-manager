@@ -22,94 +22,161 @@ CONFIG_FILE="/etc/config/huawei-manager"
 TEMP_DIR="/tmp/huawei-manager-install"
 API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
 
-# Colors for output (if terminal supports it)
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m' # No Color
 
+# Box drawing characters (ASCII compatible)
+BOX_TL="+"
+BOX_TR="+"
+BOX_BL="+"
+BOX_BR="+"
+BOX_H="-"
+BOX_V="|"
+
 # Functions
+clear_screen() {
+    clear 2>/dev/null || printf "\033c"
+}
+
+print_line() {
+    printf "${CYAN}"
+    printf "%s" "$BOX_TL"
+    i=0
+    while [ $i -lt 50 ]; do
+        printf "%s" "$BOX_H"
+        i=$((i + 1))
+    done
+    printf "%s${NC}\n" "$BOX_TR"
+}
+
+print_line_bottom() {
+    printf "${CYAN}"
+    printf "%s" "$BOX_BL"
+    i=0
+    while [ $i -lt 50 ]; do
+        printf "%s" "$BOX_H"
+        i=$((i + 1))
+    done
+    printf "%s${NC}\n" "$BOX_BR"
+}
+
 print_banner() {
     echo ""
-    echo "=========================================="
-    echo "   Huawei Manager Installer for OpenWrt"
-    echo "=========================================="
+    print_line
+    printf "${CYAN}${BOX_V}${NC}                                                  ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}  ${BOLD}${WHITE}  _    _                        _  ${NC}             ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}  ${BOLD}${WHITE} | |  | |                      (_) ${NC}             ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}  ${BOLD}${WHITE} | |__| |_   _  __ ___      ___ _ ${NC}              ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}  ${BOLD}${WHITE} |  __  | | | |/ _\` \\ \\ /\\ / / _ \\ |${NC}              ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}  ${BOLD}${WHITE} | |  | | |_| | (_| |\\ V  V /  __/ |${NC}              ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}  ${BOLD}${WHITE} |_|  |_|\\__,_|\\__,_| \\_/\\_/ \\___|_|${NC}              ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}                                                  ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}        ${BOLD}${GREEN}MANAGER INSTALLER${NC}                         ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}        ${DIM}for OpenWrt${NC}                                 ${CYAN}${BOX_V}${NC}\n"
+    printf "${CYAN}${BOX_V}${NC}                                                  ${CYAN}${BOX_V}${NC}\n"
+    print_line_bottom
     echo ""
+}
+
+print_section() {
+    printf "${CYAN}━━━${NC} ${BOLD}${WHITE}%s${NC} ${CYAN}" "$1"
+    # Calculate remaining dashes
+    len=${#1}
+    remaining=$((44 - len))
+    i=0
+    while [ $i -lt $remaining ]; do
+        printf "━"
+        i=$((i + 1))
+    done
+    printf "${NC}\n"
 }
 
 print_info() {
-    printf "${BLUE}[INFO]${NC} %s\n" "$1"
+    printf "  ${BLUE}ℹ${NC}  %s\n" "$1"
 }
 
 print_success() {
-    printf "${GREEN}[SUCCESS]${NC} %s\n" "$1"
+    printf "  ${GREEN}✓${NC}  %s\n" "$1"
 }
 
 print_warning() {
-    printf "${YELLOW}[WARNING]${NC} %s\n" "$1"
+    printf "  ${YELLOW}⚠${NC}  %s\n" "$1"
 }
 
 print_error() {
-    printf "${RED}[ERROR]${NC} %s\n" "$1"
+    printf "  ${RED}✗${NC}  %s\n" "$1"
+}
+
+print_step() {
+    printf "  ${MAGENTA}➜${NC}  %s\n" "$1"
 }
 
 print_usage() {
-    echo "Usage: $0 [command]"
     echo ""
-    echo "Commands:"
-    echo "  install   - Install Huawei Manager"
-    echo "  update    - Update to latest version"
-    echo "  remove    - Remove Huawei Manager"
-    echo "  help      - Show this help message"
+    printf "${BOLD}Usage:${NC} %s [command]\n" "$0"
     echo ""
-    echo "Examples:"
-    echo "  $0                    # Interactive menu"
-    echo "  $0 install            # Direct install"
-    echo "  wget -qO- URL | sh -s -- install  # Piped install"
+    printf "${BOLD}Commands:${NC}\n"
+    printf "  ${GREEN}install${NC}   Install Huawei Manager\n"
+    printf "  ${YELLOW}update${NC}    Update to latest version\n"
+    printf "  ${RED}remove${NC}    Remove Huawei Manager\n"
+    printf "  ${CYAN}help${NC}      Show this help message\n"
+    echo ""
+    printf "${BOLD}Examples:${NC}\n"
+    printf "  %s                    ${DIM}# Interactive menu${NC}\n" "$0"
+    printf "  %s install            ${DIM}# Direct install${NC}\n" "$0"
+    printf "  wget -qO- URL | sh -s -- install  ${DIM}# Piped install${NC}\n"
+    echo ""
 }
 
 # Read input - works both in interactive and piped mode
 read_input() {
     if [ -t 0 ]; then
-        # stdin is a terminal, read normally
         read -r REPLY
     elif [ -e /dev/tty ]; then
-        # stdin is piped, try to read from tty
         read -r REPLY </dev/tty
     else
-        # No tty available, return empty
         REPLY=""
     fi
     echo "$REPLY"
 }
 
 check_dependencies() {
-    print_info "Checking dependencies..."
+    print_section "Checking Dependencies"
     
-    # Check for required commands
     for cmd in opkg wget; do
-        if ! command -v $cmd >/dev/null 2>&1; then
-            print_error "Command '$cmd' not found. Make sure you are running on OpenWrt."
+        if command -v $cmd >/dev/null 2>&1; then
+            print_success "$cmd found"
+        else
+            print_error "$cmd not found. Make sure you are running on OpenWrt."
             exit 1
         fi
     done
     
-    # Check for either curl or wget for API calls
     if command -v curl >/dev/null 2>&1; then
         DOWNLOAD_CMD="curl"
+        print_success "curl found (will use for downloads)"
     elif command -v wget >/dev/null 2>&1; then
         DOWNLOAD_CMD="wget"
+        print_success "wget found (will use for downloads)"
     else
         print_error "curl or wget is required to download files."
         exit 1
     fi
-    
-    print_success "All dependencies are available."
+    echo ""
 }
 
 get_latest_release_url() {
-    print_info "Getting latest release URL from GitHub..."
+    print_section "Fetching Latest Release"
+    print_step "Contacting GitHub API..."
     
     mkdir -p "$TEMP_DIR"
     
@@ -119,51 +186,47 @@ get_latest_release_url() {
         RELEASE_INFO=$(wget -qO- "$API_URL" 2>/dev/null) || RELEASE_INFO=""
     fi
     
-    # Parse JSON to get the IPK download URL
-    # Look for .ipk file in assets
     if [ -n "$RELEASE_INFO" ]; then
         IPK_URL=$(echo "$RELEASE_INFO" | grep -o '"browser_download_url": *"[^"]*\.ipk"' | head -1 | cut -d'"' -f4)
         VERSION=$(echo "$RELEASE_INFO" | grep -o '"tag_name": *"[^"]*"' | head -1 | cut -d'"' -f4)
     fi
     
-    # Fallback: Try to get from release folder in repository
     if [ -z "$IPK_URL" ]; then
-        print_warning "Could not find IPK file in GitHub Releases."
-        print_info "Trying to download from release folder in repository..."
+        print_warning "Could not find IPK in GitHub Releases"
+        print_step "Trying release folder in repository..."
         
-        # Try common IPK filename pattern from release folder
         IPK_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/release/${PKG_NAME}_1.0.0-1_all.ipk"
         VERSION="1.0.0"
         
-        # Verify the URL is accessible
         if [ "$DOWNLOAD_CMD" = "curl" ]; then
             if ! curl -sfI "$IPK_URL" >/dev/null 2>&1; then
-                print_error "Could not find IPK file."
-                print_info "Make sure IPK file is available in GitHub Releases or release/ folder."
+                print_error "Could not find IPK file anywhere."
+                print_info "Make sure IPK is available in GitHub Releases or release/ folder."
                 exit 1
             fi
         else
             if ! wget -q --spider "$IPK_URL" 2>/dev/null; then
-                print_error "Could not find IPK file."
-                print_info "Make sure IPK file is available in GitHub Releases or release/ folder."
+                print_error "Could not find IPK file anywhere."
+                print_info "Make sure IPK is available in GitHub Releases or release/ folder."
                 exit 1
             fi
         fi
     fi
     
-    print_success "Found release: $VERSION"
-    print_info "URL: $IPK_URL"
+    print_success "Found version: ${GREEN}${VERSION}${NC}"
+    echo ""
 }
 
 download_ipk() {
-    print_info "Downloading IPK package..."
+    print_section "Downloading Package"
+    print_step "Downloading IPK file..."
     
     IPK_FILE="$TEMP_DIR/${PKG_NAME}.ipk"
     
     if [ "$DOWNLOAD_CMD" = "curl" ]; then
-        curl -L -o "$IPK_FILE" "$IPK_URL"
+        curl -L -o "$IPK_FILE" "$IPK_URL" 2>/dev/null
     else
-        wget -O "$IPK_FILE" "$IPK_URL"
+        wget -q -O "$IPK_FILE" "$IPK_URL"
     fi
     
     if [ ! -f "$IPK_FILE" ]; then
@@ -171,14 +234,15 @@ download_ipk() {
         exit 1
     fi
     
-    print_success "Package downloaded successfully."
+    print_success "Package downloaded successfully"
+    echo ""
 }
 
 backup_config() {
     if [ -f "$CONFIG_FILE" ]; then
-        print_info "Backing up configuration..."
+        print_step "Backing up configuration..."
         cp "$CONFIG_FILE" "$TEMP_DIR/huawei-manager.config.bak"
-        print_success "Configuration backed up to $TEMP_DIR/huawei-manager.config.bak"
+        print_success "Configuration backed up"
         return 0
     fi
     return 1
@@ -186,39 +250,45 @@ backup_config() {
 
 restore_config() {
     if [ -f "$TEMP_DIR/huawei-manager.config.bak" ]; then
-        print_info "Restoring configuration..."
+        print_step "Restoring configuration..."
         cp "$TEMP_DIR/huawei-manager.config.bak" "$CONFIG_FILE"
-        print_success "Configuration restored successfully."
+        print_success "Configuration restored"
     fi
 }
 
 install_package() {
-    print_info "Installing package..."
+    print_section "Installing Package"
     
-    # Install dependencies first
-    print_info "Installing dependencies..."
+    print_step "Updating package lists..."
     opkg update >/dev/null 2>&1 || true
+    
+    print_step "Installing dependencies..."
     opkg install python3 python3-pip luci-base luci-lib-jsonc 2>/dev/null || {
-        print_warning "Some dependencies may already be installed or unavailable."
+        print_warning "Some dependencies may already be installed"
     }
     
-    # Install the package
+    print_step "Installing Huawei Manager..."
     opkg install "$TEMP_DIR/${PKG_NAME}.ipk"
     
     if [ $? -eq 0 ]; then
-        print_success "Package installed successfully!"
+        print_success "Package installed!"
         
-        # Install Python dependency
-        print_info "Installing huawei-lte-api..."
+        print_step "Installing Python dependencies..."
         pip3 install huawei-lte-api --quiet 2>/dev/null || {
-            print_warning "Failed to install huawei-lte-api. You may need to install it manually."
+            print_warning "Failed to install huawei-lte-api (install manually)"
         }
         
-        # Clear LuCI cache
+        print_step "Clearing LuCI cache..."
         rm -rf /tmp/luci-modulecache /tmp/luci-indexcache 2>/dev/null || true
+        print_success "Cache cleared"
         
-        print_success "Installation complete!"
-        print_info "Access Huawei Manager via LuCI: Services > Huawei Manager"
+        echo ""
+        print_section "Installation Complete"
+        printf "\n"
+        printf "  ${GREEN}${BOLD}Huawei Manager has been installed successfully!${NC}\n"
+        printf "\n"
+        printf "  ${CYAN}Access via:${NC} LuCI > Services > Huawei Manager\n"
+        printf "\n"
     else
         print_error "Failed to install package."
         exit 1
@@ -226,42 +296,43 @@ install_package() {
 }
 
 update_package() {
-    print_info "Updating package..."
+    print_section "Updating Package"
     
-    # Backup config before update
     HAS_CONFIG=0
     if backup_config; then
         HAS_CONFIG=1
     fi
     
-    # Remove old package (but opkg will preserve conffiles by default)
+    print_step "Removing old version..."
     if opkg list-installed | grep -q "^${PKG_NAME} "; then
         opkg remove "$PKG_NAME" 2>/dev/null || true
     fi
     
-    # Install new package
+    print_step "Installing new version..."
     opkg install "$TEMP_DIR/${PKG_NAME}.ipk"
     
     if [ $? -eq 0 ]; then
-        # Restore config if it was backed up and got overwritten
         if [ $HAS_CONFIG -eq 1 ]; then
             restore_config
         fi
         
-        # Update Python dependency
-        print_info "Updating huawei-lte-api..."
+        print_step "Updating Python dependencies..."
         pip3 install --upgrade huawei-lte-api --quiet 2>/dev/null || true
         
-        # Clear LuCI cache
+        print_step "Clearing LuCI cache..."
         rm -rf /tmp/luci-modulecache /tmp/luci-indexcache 2>/dev/null || true
         
-        # Restart service
+        print_step "Restarting service..."
         /etc/init.d/huawei-manager restart 2>/dev/null || true
         
-        print_success "Update complete!"
+        echo ""
+        print_section "Update Complete"
+        printf "\n"
+        printf "  ${GREEN}${BOLD}Huawei Manager has been updated successfully!${NC}\n"
+        printf "  ${DIM}Your configuration has been preserved.${NC}\n"
+        printf "\n"
     else
         print_error "Failed to update package."
-        # Try to restore config anyway
         if [ $HAS_CONFIG -eq 1 ]; then
             restore_config
         fi
@@ -270,49 +341,51 @@ update_package() {
 }
 
 remove_package() {
-    print_info "Removing package..."
+    print_section "Removing Package"
     
-    # Ask about config preservation (default: keep config)
     KEEP_CONFIG="1"
     if [ -t 0 ] || [ -e /dev/tty ]; then
         echo ""
-        echo "Do you want to keep the configuration file?"
-        echo "  1) Yes, keep configuration"
-        echo "  2) No, remove everything"
+        printf "  ${YELLOW}?${NC}  Keep configuration file?\n"
+        printf "     ${WHITE}1)${NC} Yes, keep configuration\n"
+        printf "     ${WHITE}2)${NC} No, remove everything\n"
         echo ""
-        printf "Choice [1-2]: "
+        printf "     Choice [1-2]: "
         KEEP_CONFIG=$(read_input)
     fi
     
     case "$KEEP_CONFIG" in
         2)
-            # Remove completely including config
             if [ -f "$CONFIG_FILE" ]; then
                 rm -f "$CONFIG_FILE"
+                print_success "Configuration removed"
             fi
             ;;
         *)
-            # Backup config
             if [ -f "$CONFIG_FILE" ]; then
                 cp "$CONFIG_FILE" "/etc/config/huawei-manager.bak"
-                print_info "Configuration backed up to /etc/config/huawei-manager.bak"
+                print_success "Configuration backed up to /etc/config/huawei-manager.bak"
             fi
             ;;
     esac
     
-    # Stop service first
+    print_step "Stopping service..."
     /etc/init.d/huawei-manager stop 2>/dev/null || true
     /etc/init.d/huawei-manager disable 2>/dev/null || true
     
-    # Remove package
+    print_step "Removing package..."
     opkg remove "$PKG_NAME" 2>/dev/null || {
-        print_warning "Package not found or already removed."
+        print_warning "Package not found or already removed"
     }
     
-    # Clear LuCI cache
+    print_step "Clearing LuCI cache..."
     rm -rf /tmp/luci-modulecache /tmp/luci-indexcache 2>/dev/null || true
     
-    print_success "Removal complete!"
+    echo ""
+    print_section "Removal Complete"
+    printf "\n"
+    printf "  ${GREEN}${BOLD}Huawei Manager has been removed.${NC}\n"
+    printf "\n"
 }
 
 check_installed() {
@@ -325,9 +398,9 @@ check_installed() {
 
 do_install() {
     if check_installed; then
-        print_warning "Package is already installed (version $INSTALLED_VERSION)."
+        print_warning "Package is already installed (version $INSTALLED_VERSION)"
         if [ -t 0 ] || [ -e /dev/tty ]; then
-            printf "Continue with reinstall? [y/N]: "
+            printf "     Continue with reinstall? [y/N]: "
             CONFIRM=$(read_input)
             case "$CONFIRM" in
                 [yY]|[yY][eE][sS])
@@ -340,6 +413,7 @@ do_install() {
             print_info "Non-interactive mode: proceeding with reinstall..."
         fi
     fi
+    echo ""
     check_dependencies
     get_latest_release_url
     download_ipk
@@ -351,6 +425,7 @@ do_update() {
         print_warning "Package is not installed. Use 'install' first."
         exit 1
     fi
+    echo ""
     check_dependencies
     get_latest_release_url
     download_ipk
@@ -362,37 +437,42 @@ do_remove() {
         print_warning "Package is not installed."
         exit 0
     fi
+    echo ""
     remove_package
 }
 
 show_menu() {
+    clear_screen
     print_banner
     
-    # Check if package is already installed
+    # Status section
+    print_section "Status"
     if check_installed; then
-        print_info "Status: Installed (version $INSTALLED_VERSION)"
+        printf "  ${GREEN}●${NC}  Installed ${DIM}(version %s)${NC}\n" "$INSTALLED_VERSION"
     else
-        print_info "Status: Not installed"
+        printf "  ${RED}○${NC}  Not installed\n"
     fi
+    echo ""
     
     # Check if we can read input
     if [ ! -t 0 ] && [ ! -e /dev/tty ]; then
-        print_error "Interactive mode not available (stdin not available)."
-        print_info "Use command line arguments:"
+        print_error "Interactive mode not available"
+        print_info "Use command line arguments instead:"
         print_usage
         exit 1
     fi
     
+    # Menu section
+    print_section "Menu"
     echo ""
-    echo "Select an action:"
+    printf "     ${WHITE}${BOLD}1)${NC} ${GREEN}Install${NC}    Install Huawei Manager\n"
+    printf "     ${WHITE}${BOLD}2)${NC} ${YELLOW}Update${NC}     Update to latest version\n"
+    printf "     ${WHITE}${BOLD}3)${NC} ${RED}Remove${NC}     Remove Huawei Manager\n"
+    printf "     ${WHITE}${BOLD}4)${NC} ${DIM}Exit${NC}       Exit installer\n"
     echo ""
-    echo "  1) Install    - Install Huawei Manager"
-    echo "  2) Update     - Update to latest version"
-    echo "  3) Remove     - Remove Huawei Manager"
-    echo "  4) Exit       - Exit installer"
-    echo ""
-    printf "Choice [1-4]: "
+    printf "     Choice [1-4]: "
     CHOICE=$(read_input)
+    echo ""
     
     case "$CHOICE" in
         1|install)
@@ -404,8 +484,8 @@ show_menu() {
         3|remove)
             do_remove
             ;;
-        4|exit|quit)
-            print_info "Exiting..."
+        4|exit|quit|q)
+            printf "  ${CYAN}Goodbye!${NC}\n\n"
             exit 0
             ;;
         *)
@@ -416,7 +496,6 @@ show_menu() {
 }
 
 cleanup() {
-    # Clean up temporary files
     rm -rf "$TEMP_DIR" 2>/dev/null || true
 }
 
@@ -425,33 +504,42 @@ trap cleanup EXIT
 
 # Check if running as root
 if [ "$(id -u)" != "0" ]; then
+    clear_screen
+    print_banner
     print_error "This script must be run as root."
+    printf "  ${DIM}Try: sudo %s${NC}\n\n" "$0"
     exit 1
 fi
 
 # Parse command line arguments
 case "${1:-}" in
     install)
+        clear_screen
         print_banner
         do_install
         ;;
     update)
+        clear_screen
         print_banner
         do_update
         ;;
     remove)
+        clear_screen
         print_banner
         do_remove
         ;;
     help|--help|-h)
+        clear_screen
+        print_banner
         print_usage
         exit 0
         ;;
     "")
-        # No argument, show interactive menu
         show_menu
         ;;
     *)
+        clear_screen
+        print_banner
         print_error "Unknown command: $1"
         print_usage
         exit 1
