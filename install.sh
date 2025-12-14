@@ -2,6 +2,15 @@
 # Huawei Manager Installer for OpenWrt
 # Repository: https://github.com/rdk-i/huawei-manager
 # License: MIT
+#
+# Usage:
+#   ./install.sh              # Interactive menu
+#   ./install.sh install      # Direct install
+#   ./install.sh update       # Direct update
+#   ./install.sh remove       # Direct remove
+#
+# For piped execution:
+#   wget -qO- https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh | sh -s -- install
 
 set -e
 
@@ -30,28 +39,58 @@ print_banner() {
 }
 
 print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    printf "${BLUE}[INFO]${NC} %s\n" "$1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    printf "${GREEN}[SUCCESS]${NC} %s\n" "$1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    printf "${YELLOW}[WARNING]${NC} %s\n" "$1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    printf "${RED}[ERROR]${NC} %s\n" "$1"
+}
+
+print_usage() {
+    echo "Usage: $0 [command]"
+    echo ""
+    echo "Commands:"
+    echo "  install   - Install Huawei Manager"
+    echo "  update    - Update to latest version"
+    echo "  remove    - Remove Huawei Manager"
+    echo "  help      - Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                    # Interactive menu"
+    echo "  $0 install            # Direct install"
+    echo "  wget -qO- URL | sh -s -- install  # Piped install"
+}
+
+# Read input - works both in interactive and piped mode
+read_input() {
+    if [ -t 0 ]; then
+        # stdin is a terminal, read normally
+        read -r REPLY
+    elif [ -e /dev/tty ]; then
+        # stdin is piped, try to read from tty
+        read -r REPLY </dev/tty
+    else
+        # No tty available, return empty
+        REPLY=""
+    fi
+    echo "$REPLY"
 }
 
 check_dependencies() {
-    print_info "Memeriksa dependensi..."
+    print_info "Checking dependencies..."
     
     # Check for required commands
     for cmd in opkg wget; do
         if ! command -v $cmd >/dev/null 2>&1; then
-            print_error "Command '$cmd' tidak ditemukan. Pastikan Anda menjalankan di OpenWrt."
+            print_error "Command '$cmd' not found. Make sure you are running on OpenWrt."
             exit 1
         fi
     done
@@ -62,15 +101,15 @@ check_dependencies() {
     elif command -v wget >/dev/null 2>&1; then
         DOWNLOAD_CMD="wget"
     else
-        print_error "curl atau wget diperlukan untuk mengunduh file."
+        print_error "curl or wget is required to download files."
         exit 1
     fi
     
-    print_success "Semua dependensi tersedia."
+    print_success "All dependencies are available."
 }
 
 get_latest_release_url() {
-    print_info "Mendapatkan URL rilis terbaru dari GitHub..."
+    print_info "Getting latest release URL from GitHub..."
     
     mkdir -p "$TEMP_DIR"
     
@@ -89,8 +128,8 @@ get_latest_release_url() {
     
     # Fallback: Try to get from release folder in repository
     if [ -z "$IPK_URL" ]; then
-        print_warning "Tidak dapat menemukan file IPK di GitHub Releases."
-        print_info "Mencoba mengunduh dari folder release di repository..."
+        print_warning "Could not find IPK file in GitHub Releases."
+        print_info "Trying to download from release folder in repository..."
         
         # Try common IPK filename pattern from release folder
         IPK_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/release/${PKG_NAME}_1.0.0-1_all.ipk"
@@ -99,25 +138,25 @@ get_latest_release_url() {
         # Verify the URL is accessible
         if [ "$DOWNLOAD_CMD" = "curl" ]; then
             if ! curl -sfI "$IPK_URL" >/dev/null 2>&1; then
-                print_error "Tidak dapat menemukan file IPK."
-                print_info "Pastikan file IPK tersedia di GitHub Releases atau folder release/."
+                print_error "Could not find IPK file."
+                print_info "Make sure IPK file is available in GitHub Releases or release/ folder."
                 exit 1
             fi
         else
             if ! wget -q --spider "$IPK_URL" 2>/dev/null; then
-                print_error "Tidak dapat menemukan file IPK."
-                print_info "Pastikan file IPK tersedia di GitHub Releases atau folder release/."
+                print_error "Could not find IPK file."
+                print_info "Make sure IPK file is available in GitHub Releases or release/ folder."
                 exit 1
             fi
         fi
     fi
     
-    print_success "Ditemukan rilis: $VERSION"
+    print_success "Found release: $VERSION"
     print_info "URL: $IPK_URL"
 }
 
 download_ipk() {
-    print_info "Mengunduh paket IPK..."
+    print_info "Downloading IPK package..."
     
     IPK_FILE="$TEMP_DIR/${PKG_NAME}.ipk"
     
@@ -128,18 +167,18 @@ download_ipk() {
     fi
     
     if [ ! -f "$IPK_FILE" ]; then
-        print_error "Gagal mengunduh file IPK."
+        print_error "Failed to download IPK file."
         exit 1
     fi
     
-    print_success "Paket berhasil diunduh."
+    print_success "Package downloaded successfully."
 }
 
 backup_config() {
     if [ -f "$CONFIG_FILE" ]; then
-        print_info "Membackup konfigurasi..."
+        print_info "Backing up configuration..."
         cp "$CONFIG_FILE" "$TEMP_DIR/huawei-manager.config.bak"
-        print_success "Konfigurasi dibackup ke $TEMP_DIR/huawei-manager.config.bak"
+        print_success "Configuration backed up to $TEMP_DIR/huawei-manager.config.bak"
         return 0
     fi
     return 1
@@ -147,47 +186,47 @@ backup_config() {
 
 restore_config() {
     if [ -f "$TEMP_DIR/huawei-manager.config.bak" ]; then
-        print_info "Memulihkan konfigurasi..."
+        print_info "Restoring configuration..."
         cp "$TEMP_DIR/huawei-manager.config.bak" "$CONFIG_FILE"
-        print_success "Konfigurasi berhasil dipulihkan."
+        print_success "Configuration restored successfully."
     fi
 }
 
 install_package() {
-    print_info "Menginstal paket..."
+    print_info "Installing package..."
     
     # Install dependencies first
-    print_info "Menginstal dependensi..."
+    print_info "Installing dependencies..."
     opkg update >/dev/null 2>&1 || true
     opkg install python3 python3-pip luci-base luci-lib-jsonc 2>/dev/null || {
-        print_warning "Beberapa dependensi mungkin sudah terinstal atau tidak tersedia."
+        print_warning "Some dependencies may already be installed or unavailable."
     }
     
     # Install the package
     opkg install "$TEMP_DIR/${PKG_NAME}.ipk"
     
     if [ $? -eq 0 ]; then
-        print_success "Paket berhasil diinstal!"
+        print_success "Package installed successfully!"
         
         # Install Python dependency
-        print_info "Menginstal huawei-lte-api..."
+        print_info "Installing huawei-lte-api..."
         pip3 install huawei-lte-api --quiet 2>/dev/null || {
-            print_warning "Gagal menginstal huawei-lte-api. Anda mungkin perlu menginstalnya secara manual."
+            print_warning "Failed to install huawei-lte-api. You may need to install it manually."
         }
         
         # Clear LuCI cache
         rm -rf /tmp/luci-modulecache /tmp/luci-indexcache 2>/dev/null || true
         
-        print_success "Instalasi selesai!"
-        print_info "Akses Huawei Manager melalui LuCI: Services > Huawei Manager"
+        print_success "Installation complete!"
+        print_info "Access Huawei Manager via LuCI: Services > Huawei Manager"
     else
-        print_error "Gagal menginstal paket."
+        print_error "Failed to install package."
         exit 1
     fi
 }
 
 update_package() {
-    print_info "Memperbarui paket..."
+    print_info "Updating package..."
     
     # Backup config before update
     HAS_CONFIG=0
@@ -210,7 +249,7 @@ update_package() {
         fi
         
         # Update Python dependency
-        print_info "Memperbarui huawei-lte-api..."
+        print_info "Updating huawei-lte-api..."
         pip3 install --upgrade huawei-lte-api --quiet 2>/dev/null || true
         
         # Clear LuCI cache
@@ -219,9 +258,9 @@ update_package() {
         # Restart service
         /etc/init.d/huawei-manager restart 2>/dev/null || true
         
-        print_success "Pembaruan selesai!"
+        print_success "Update complete!"
     else
-        print_error "Gagal memperbarui paket."
+        print_error "Failed to update package."
         # Try to restore config anyway
         if [ $HAS_CONFIG -eq 1 ]; then
             restore_config
@@ -231,16 +270,19 @@ update_package() {
 }
 
 remove_package() {
-    print_info "Menghapus paket..."
+    print_info "Removing package..."
     
-    # Ask about config preservation
-    echo ""
-    echo "Apakah Anda ingin menyimpan file konfigurasi?"
-    echo "  1) Ya, simpan konfigurasi"
-    echo "  2) Tidak, hapus semuanya"
-    echo ""
-    printf "Pilihan [1-2]: "
-    read -r KEEP_CONFIG
+    # Ask about config preservation (default: keep config)
+    KEEP_CONFIG="1"
+    if [ -t 0 ] || [ -e /dev/tty ]; then
+        echo ""
+        echo "Do you want to keep the configuration file?"
+        echo "  1) Yes, keep configuration"
+        echo "  2) No, remove everything"
+        echo ""
+        printf "Choice [1-2]: "
+        KEEP_CONFIG=$(read_input)
+    fi
     
     case "$KEEP_CONFIG" in
         2)
@@ -253,7 +295,7 @@ remove_package() {
             # Backup config
             if [ -f "$CONFIG_FILE" ]; then
                 cp "$CONFIG_FILE" "/etc/config/huawei-manager.bak"
-                print_info "Konfigurasi dibackup ke /etc/config/huawei-manager.bak"
+                print_info "Configuration backed up to /etc/config/huawei-manager.bak"
             fi
             ;;
     esac
@@ -264,13 +306,13 @@ remove_package() {
     
     # Remove package
     opkg remove "$PKG_NAME" 2>/dev/null || {
-        print_warning "Paket tidak ditemukan atau sudah dihapus."
+        print_warning "Package not found or already removed."
     }
     
     # Clear LuCI cache
     rm -rf /tmp/luci-modulecache /tmp/luci-indexcache 2>/dev/null || true
     
-    print_success "Penghapusan selesai!"
+    print_success "Removal complete!"
 }
 
 check_installed() {
@@ -281,70 +323,93 @@ check_installed() {
     return 1
 }
 
+do_install() {
+    if check_installed; then
+        print_warning "Package is already installed (version $INSTALLED_VERSION)."
+        if [ -t 0 ] || [ -e /dev/tty ]; then
+            printf "Continue with reinstall? [y/N]: "
+            CONFIRM=$(read_input)
+            case "$CONFIRM" in
+                [yY]|[yY][eE][sS])
+                    ;;
+                *)
+                    exit 0
+                    ;;
+            esac
+        else
+            print_info "Non-interactive mode: proceeding with reinstall..."
+        fi
+    fi
+    check_dependencies
+    get_latest_release_url
+    download_ipk
+    install_package
+}
+
+do_update() {
+    if ! check_installed; then
+        print_warning "Package is not installed. Use 'install' first."
+        exit 1
+    fi
+    check_dependencies
+    get_latest_release_url
+    download_ipk
+    update_package
+}
+
+do_remove() {
+    if ! check_installed; then
+        print_warning "Package is not installed."
+        exit 0
+    fi
+    remove_package
+}
+
 show_menu() {
     print_banner
     
     # Check if package is already installed
     if check_installed; then
-        print_info "Status: Terinstal (versi $INSTALLED_VERSION)"
+        print_info "Status: Installed (version $INSTALLED_VERSION)"
     else
-        print_info "Status: Belum terinstal"
+        print_info "Status: Not installed"
+    fi
+    
+    # Check if we can read input
+    if [ ! -t 0 ] && [ ! -e /dev/tty ]; then
+        print_error "Interactive mode not available (stdin not available)."
+        print_info "Use command line arguments:"
+        print_usage
+        exit 1
     fi
     
     echo ""
-    echo "Pilih aksi yang ingin dilakukan:"
+    echo "Select an action:"
     echo ""
-    echo "  1) Install    - Instal Huawei Manager"
-    echo "  2) Update     - Perbarui ke versi terbaru"
-    echo "  3) Remove     - Hapus Huawei Manager"
-    echo "  4) Exit       - Keluar"
+    echo "  1) Install    - Install Huawei Manager"
+    echo "  2) Update     - Update to latest version"
+    echo "  3) Remove     - Remove Huawei Manager"
+    echo "  4) Exit       - Exit installer"
     echo ""
-    printf "Pilihan [1-4]: "
-    read -r CHOICE
+    printf "Choice [1-4]: "
+    CHOICE=$(read_input)
     
     case "$CHOICE" in
-        1)
-            if check_installed; then
-                print_warning "Paket sudah terinstal. Gunakan opsi Update untuk memperbarui."
-                echo ""
-                printf "Lanjutkan instalasi ulang? [y/N]: "
-                read -r CONFIRM
-                case "$CONFIRM" in
-                    [yY]|[yY][eE][sS])
-                        ;;
-                    *)
-                        exit 0
-                        ;;
-                esac
-            fi
-            check_dependencies
-            get_latest_release_url
-            download_ipk
-            install_package
+        1|install)
+            do_install
             ;;
-        2)
-            if ! check_installed; then
-                print_warning "Paket belum terinstal. Gunakan opsi Install terlebih dahulu."
-                exit 1
-            fi
-            check_dependencies
-            get_latest_release_url
-            download_ipk
-            update_package
+        2|update)
+            do_update
             ;;
-        3)
-            if ! check_installed; then
-                print_warning "Paket belum terinstal."
-                exit 0
-            fi
-            remove_package
+        3|remove)
+            do_remove
             ;;
-        4)
-            print_info "Keluar..."
+        4|exit|quit)
+            print_info "Exiting..."
             exit 0
             ;;
         *)
-            print_error "Pilihan tidak valid."
+            print_error "Invalid choice."
             exit 1
             ;;
     esac
@@ -360,11 +425,37 @@ trap cleanup EXIT
 
 # Check if running as root
 if [ "$(id -u)" != "0" ]; then
-    print_error "Script ini harus dijalankan sebagai root."
+    print_error "This script must be run as root."
     exit 1
 fi
 
-# Show menu
-show_menu
+# Parse command line arguments
+case "${1:-}" in
+    install)
+        print_banner
+        do_install
+        ;;
+    update)
+        print_banner
+        do_update
+        ;;
+    remove)
+        print_banner
+        do_remove
+        ;;
+    help|--help|-h)
+        print_usage
+        exit 0
+        ;;
+    "")
+        # No argument, show interactive menu
+        show_menu
+        ;;
+    *)
+        print_error "Unknown command: $1"
+        print_usage
+        exit 1
+        ;;
+esac
 
 exit 0

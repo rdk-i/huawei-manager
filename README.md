@@ -69,10 +69,17 @@ Comprehensive Huawei LTE modem management tool for OpenWrt. This package combine
 Jalankan command berikut di terminal OpenWrt:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh | sh
+# Install langsung
+wget -qO- https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh | sh -s -- install
+
+# Update ke versi terbaru
+wget -qO- https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh | sh -s -- update
+
+# Hapus aplikasi
+wget -qO- https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh | sh -s -- remove
 ```
 
-Atau unduh dan jalankan script secara manual:
+Atau unduh dan jalankan script secara manual (dengan menu interaktif):
 
 ```bash
 wget https://raw.githubusercontent.com/rdk-i/huawei-manager/main/install.sh
@@ -80,10 +87,10 @@ chmod +x install.sh
 ./install.sh
 ```
 
-Script ini menyediakan menu interaktif untuk:
-- **Install** - Instal Huawei Manager dari rilis terbaru
-- **Update** - Perbarui ke versi terbaru (konfigurasi user tetap terjaga)
-- **Remove** - Hapus Huawei Manager
+Script ini menyediakan opsi:
+- **install** - Instal Huawei Manager dari rilis terbaru
+- **update** - Perbarui ke versi terbaru (konfigurasi user tetap terjaga)
+- **remove** - Hapus Huawei Manager
 
 ### Option 2: Manual Install (Pre-built Package)
 
