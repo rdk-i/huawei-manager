@@ -260,6 +260,18 @@ The package handles self-signed certificates automatically. If issues persist:
 
 MIT License
 
+## Author
+
+Developed by **Must_A_Kim**
+
+[![Telegram](https://img.shields.io/badge/Telegram-@must__a__kim-blue?logo=telegram)](http://t.me/must_a_kim)
+
+## Support
+
+If you find this project useful, consider supporting the development:
+
+[![Saweria](https://img.shields.io/badge/Saweria-Support-orange?logo=ko-fi)](https://saweria.co/must0a0kim)
+
 ## Credits
 
 - [huawei-lte-api](https://github.com/Salamek/huawei-lte-api) - Python library for Huawei modems
