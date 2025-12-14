@@ -120,7 +120,7 @@ opkg install huawei-manager_1.0.0-1_all.ipk
 
 ### Via LuCI Web Interface
 
-1. Navigate to **Services → Huawei Manager**
+1. Navigate to **Modem → Huawei Manager**
 2. Go to **Config** tab
 3. Add devices with:
    - **Device Name**: Friendly name (e.g., "Orbit Max")

@@ -287,7 +287,7 @@ install_package() {
         printf "\n"
         printf "  ${GREEN}${BOLD}Huawei Manager has been installed successfully!${NC}\n"
         printf "\n"
-        printf "  ${CYAN}Access via:${NC} LuCI > Services > Huawei Manager\n"
+        printf "  ${CYAN}Access via:${NC} LuCI > Modem > Huawei Manager\n"
         printf "\n"
     else
         print_error "Failed to install package."
