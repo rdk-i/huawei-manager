@@ -1,0 +1,509 @@
+<%# Huawei Manager - IP Agent View %>
+<%# Multi-device IP hunting status with metrics %>
+
+<style type="text/css">
+.hm-ipagent-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 15px;
+}
+.hm-status-card {
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+}
+.hm-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+    gap: 10px;
+}
+.hm-status-name {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: #fff;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hm-status-badge {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: #333;
+    color: #aaa;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.hm-status-badge.connected { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+.hm-status-badge.reconnecting { background: rgba(255, 152, 0, 0.2); color: #ff9800; animation: pulse 2s infinite; }
+.hm-status-badge.error { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+.hm-status-badge.disabled { background: rgba(158, 158, 158, 0.2); color: #9e9e9e; }
+
+.hm-status-body { margin-bottom: 12px; }
+
+.hm-status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+.hm-status-label { color: #888; }
+.hm-status-value { color: #ddd; font-family: monospace; }
+
+/* Metrics Section */
+.hm-metrics {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+}
+.hm-metrics-title {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+}
+.hm-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.hm-metric-item {
+    text-align: center;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+.hm-metric-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #4CAF50;
+    font-family: monospace;
+}
+.hm-metric-value.warning { color: #ff9800; }
+.hm-metric-value.info { color: #2196f3; }
+.hm-metric-label {
+    font-size: 0.7rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* IP History */
+.hm-history {
+    margin-top: 8px;
+}
+.hm-history-title {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.hm-history-toggle {
+    background: none;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+}
+.hm-history-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+.hm-history-list.expanded {
+    max-height: 200px;
+    overflow-y: auto;
+}
+.hm-history-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin-bottom: 3px;
+}
+.hm-history-item .ip { color: #ddd; font-family: monospace; }
+.hm-history-item .time { color: #666; }
+.hm-history-item .duration { color: #4CAF50; font-family: monospace; }
+
+.hm-status-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid #333;
+}
+.hm-status-updated { font-size: 0.75rem; color: #666; }
+
+.hm-btn-reconnect {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+.hm-btn-reconnect:hover { background: linear-gradient(135deg, #1976d2, #1565c0); transform: translateY(-1px); }
+.hm-btn-reconnect:disabled { background: #555; cursor: not-allowed; transform: none; }
+.hm-btn-reconnect.loading { opacity: 0.7; cursor: wait; }
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* No Devices */
+.hm-no-devices {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+.hm-no-devices-icon { font-size: 3rem; margin-bottom: 15px; }
+.hm-no-devices-text { color: #888; margin-bottom: 20px; }
+.hm-no-devices a { color: #4CAF50; }
+
+/* Responsive */
+@media (max-width: 500px) {
+    .hm-ipagent-container { grid-template-columns: 1fr; }
+    .hm-metrics-grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+    .hm-metric-value { font-size: 1.1rem; }
+}
+</style>
+
+<div class="cbi-section">
+    <h3>🎯 IP Agent Status</h3>
+    <p style="color: #888; font-size: 0.9rem;">
+        Automatic IP hunting service. Monitors WAN IP and reconnects until target IP prefix is obtained.
+    </p>
+    
+    <div id="ipagent-container" class="hm-ipagent-container">
+        <div class="hm-no-devices">
+            <div class="hm-no-devices-icon">⏳</div>
+            <div class="hm-no-devices-text">Loading device status...</div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var isReconnecting = {};
+var historyExpanded = {};
+
+var apiBase = '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "api")%>';
+
+function fetchJSON(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    callback(null, JSON.parse(xhr.responseText));
+                } catch(e) {
+                    callback(e, null);
+                }
+            } else {
+                callback(new Error('HTTP ' + xhr.status), null);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function formatDuration(seconds) {
+    if (!seconds || seconds < 0) return '-';
+    if (seconds < 60) return seconds + 's';
+    if (seconds < 3600) return Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
+    var hours = Math.floor(seconds / 3600);
+    var mins = Math.floor((seconds % 3600) / 60);
+    if (hours < 24) return hours + 'h ' + mins + 'm';
+    var days = Math.floor(hours / 24);
+    hours = hours % 24;
+    return days + 'd ' + hours + 'h';
+}
+
+function formatDateTime(timestamp) {
+    if (!timestamp) return '-';
+    var date = new Date(timestamp * 1000);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) return '-';
+    var date = new Date(timestamp * 1000);
+    return date.toLocaleTimeString();
+}
+
+function toggleHistory(id) {
+    var list = document.getElementById('history-list-' + id);
+    var btn = document.getElementById('history-toggle-' + id);
+    if (list) {
+        historyExpanded[id] = !historyExpanded[id];
+        if (historyExpanded[id]) {
+            list.classList.add('expanded');
+            btn.innerText = '▲ Hide';
+        } else {
+            list.classList.remove('expanded');
+            btn.innerText = '▼ Show';
+        }
+    }
+}
+
+function updateStatus() {
+    fetchJSON(apiBase + '/status', function(err, data) {
+        if (err) {
+            console.error('Status update error:', err);
+            return;
+        }
+        
+        var container = document.getElementById('ipagent-container');
+        
+        if (!data || !data.devices || Object.keys(data.devices).length === 0) {
+            container.innerHTML = 
+                '<div class="hm-no-devices">' +
+                '  <div class="hm-no-devices-icon">📱</div>' +
+                '  <div class="hm-no-devices-text">No devices configured or service not running</div>' +
+                '  <a href="<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "config")%>">Configure Devices</a>' +
+                '</div>';
+            return;
+        }
+        
+        // Clear loading message on first successful load
+        var loadingEl = container.querySelector('.hm-no-devices');
+        if (loadingEl && loadingEl.innerText.indexOf('Loading') !== -1) {
+            container.innerHTML = '';
+        }
+        
+        var now = Math.floor(Date.now() / 1000);
+        
+        for (var id in data.devices) {
+            if (!data.devices.hasOwnProperty(id)) continue;
+            
+            var device = data.devices[id];
+            var metrics = device.metrics || {};
+            var cardId = 'device-card-' + id;
+            var card = document.getElementById(cardId);
+            
+            if (!card) {
+                card = document.createElement('div');
+                card.id = cardId;
+                card.className = 'hm-status-card';
+                card.innerHTML = buildCardHTML(id, device);
+                container.appendChild(card);
+            }
+            
+            // Update Name
+            var nameEl = document.getElementById(cardId + '-name');
+            if (nameEl) nameEl.innerText = device.name || id;
+            
+            // Update Status Badge
+            var statusEl = document.getElementById(cardId + '-status');
+            if (statusEl) {
+                var s = (device.status || '').toLowerCase();
+                statusEl.innerText = device.status || 'Unknown';
+                statusEl.className = 'hm-status-badge';
+                if (s.indexOf('connected') !== -1) statusEl.classList.add('connected');
+                else if (s.indexOf('reconnecting') !== -1) statusEl.classList.add('reconnecting');
+                else if (s.indexOf('disabled') !== -1) statusEl.classList.add('disabled');
+                else statusEl.classList.add('error');
+            }
+            
+            // Update IP & Targets
+            var ipEl = document.getElementById(cardId + '-ip');
+            if (ipEl) ipEl.innerText = device.current_ip || 'N/A';
+            
+            var targetsEl = document.getElementById(cardId + '-targets');
+            if (targetsEl && device.config) {
+                targetsEl.innerText = device.config.target_prefixes || '-';
+            }
+            
+            // Update Metrics
+            var reconnectsEl = document.getElementById(cardId + '-reconnects');
+            if (reconnectsEl) reconnectsEl.innerText = metrics.reconnects_today || 0;
+            
+            var totalEl = document.getElementById(cardId + '-total');
+            if (totalEl) totalEl.innerText = metrics.total_reconnects || 0;
+            
+            var uptimeEl = document.getElementById(cardId + '-uptime');
+            if (uptimeEl) {
+                if (metrics.target_found_at) {
+                    uptimeEl.innerText = formatDuration(now - metrics.target_found_at);
+                } else {
+                    uptimeEl.innerText = '-';
+                }
+            }
+            
+            // Update IP History
+            var historyList = document.getElementById('history-list-' + id);
+            if (historyList && metrics.ip_history && metrics.ip_history.length > 0) {
+                var historyHtml = '';
+                var history = metrics.ip_history.slice().reverse();
+                for (var i = 0; i < history.length; i++) {
+                    var entry = history[i];
+                    historyHtml += '<div class="hm-history-item">' +
+                        '<span class="ip">' + entry.ip + '</span>' +
+                        '<span class="time">' + formatDateTime(entry.start) + '</span>' +
+                        '<span class="duration">' + formatDuration(entry.duration) + '</span>' +
+                        '</div>';
+                }
+                historyList.innerHTML = historyHtml;
+                if (historyExpanded[id]) {
+                    historyList.classList.add('expanded');
+                }
+            } else if (historyList) {
+                historyList.innerHTML = '<div class="hm-history-item"><span style="color:#666">No history yet</span></div>';
+            }
+            
+            // Update Timestamp
+            var updatedEl = document.getElementById(cardId + '-updated');
+            if (updatedEl && device.last_update) {
+                updatedEl.innerText = 'Updated: ' + formatTime(device.last_update);
+            }
+            
+            // Update Button State
+            var btn = document.getElementById(cardId + '-btn');
+            if (btn) {
+                if (isReconnecting[id]) {
+                    btn.disabled = true;
+                    btn.innerText = '⏳ Running...';
+                    btn.classList.add('loading');
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = '🔄 Reconnect';
+                    btn.classList.remove('loading');
+                }
+            }
+        }
+    });
+}
+
+function buildCardHTML(id, device) {
+    var cardId = 'device-card-' + id;
+    return '<div class="hm-status-header">' +
+        '  <h4 class="hm-status-name" id="' + cardId + '-name">' + (device.name || id) + '</h4>' +
+        '  <span id="' + cardId + '-status" class="hm-status-badge">' + (device.status || 'Unknown') + '</span>' +
+        '</div>' +
+        '<div class="hm-status-body">' +
+        '  <div class="hm-status-row">' +
+        '    <span class="hm-status-label">Current IP:</span>' +
+        '    <span id="' + cardId + '-ip" class="hm-status-value">' + (device.current_ip || 'N/A') + '</span>' +
+        '  </div>' +
+        '  <div class="hm-status-row">' +
+        '    <span class="hm-status-label">Target Prefixes:</span>' +
+        '    <span id="' + cardId + '-targets" class="hm-status-value" style="font-size: 0.8rem">' + 
+             (device.config ? device.config.target_prefixes : '-') + '</span>' +
+        '  </div>' +
+        '</div>' +
+        '<div class="hm-metrics">' +
+        '  <div class="hm-metrics-title">📈 Metrics</div>' +
+        '  <div class="hm-metrics-grid">' +
+        '    <div class="hm-metric-item">' +
+        '      <div id="' + cardId + '-reconnects" class="hm-metric-value warning">0</div>' +
+        '      <div class="hm-metric-label">Reconnects Today</div>' +
+        '    </div>' +
+        '    <div class="hm-metric-item">' +
+        '      <div id="' + cardId + '-uptime" class="hm-metric-value">-</div>' +
+        '      <div class="hm-metric-label">Uptime</div>' +
+        '    </div>' +
+        '    <div class="hm-metric-item">' +
+        '      <div id="' + cardId + '-total" class="hm-metric-value info">0</div>' +
+        '      <div class="hm-metric-label">Total Reconnects</div>' +
+        '    </div>' +
+        '  </div>' +
+        '  <div class="hm-history">' +
+        '    <div class="hm-history-title">' +
+        '      <span>📜 IP History</span>' +
+        '      <button id="history-toggle-' + id + '" class="hm-history-toggle" onclick="toggleHistory(\'' + id + '\')">▼ Show</button>' +
+        '    </div>' +
+        '    <div id="history-list-' + id + '" class="hm-history-list"></div>' +
+        '  </div>' +
+        '</div>' +
+        '<div class="hm-status-footer">' +
+        '  <span id="' + cardId + '-updated" class="hm-status-updated"></span>' +
+        '  <button id="' + cardId + '-btn" class="hm-btn-reconnect" onclick="triggerReconnect(\'' + id + '\')">🔄 Reconnect</button>' +
+        '</div>';
+}
+
+function triggerReconnect(id) {
+    if (!confirm('Are you sure you want to manually trigger a reconnect for this device?')) return;
+    
+    var cardId = 'device-card-' + id;
+    var btn = document.getElementById(cardId + '-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Running...';
+        isReconnecting[id] = true;
+    }
+    
+    fetchJSON(apiBase + '/reconnect?section_id=' + encodeURIComponent(id), function(err, data) {
+        isReconnecting[id] = false;
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = '🔄 Reconnect';
+        }
+        
+        if (err) {
+            alert('Request failed: ' + err.message);
+            updateStatus();
+            return;
+        }
+        
+        if (data && data.success) {
+            var msg = '✅ Reconnect Completed\n\nMethod: ' + (data.method || 'Unknown') + '\n\nOutput:\n' + (data.output || 'No output');
+            alert(msg);
+        } else {
+            alert('Reconnect failed: ' + (data ? data.error : 'Unknown error'));
+        }
+        
+        updateStatus();
+    });
+}
+
+// Initial load and auto-refresh
+var statusInterval = setInterval(updateStatus, 3000);
+updateStatus();
+
+// Cleanup on page unload to prevent memory leaks
+window.addEventListener('beforeunload', function() {
+    if (statusInterval) {
+        clearInterval(statusInterval);
+        statusInterval = null;
+    }
+});
+
+// Also cleanup when navigating away via LuCI
+window.addEventListener('unload', function() {
+    if (statusInterval) {
+        clearInterval(statusInterval);
+        statusInterval = null;
+    }
+});
+//]]>
+</script>

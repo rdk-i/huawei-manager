@@ -1,0 +1,317 @@
+<%# Huawei Manager - About Page (Content Only) %>
+
+<style type="text/css">
+.hm-about {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.hm-about-card {
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #333;
+    margin-bottom: 20px;
+}
+.hm-about-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.hm-about-logo {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+.hm-about-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+.hm-about-version {
+    color: #4CAF50;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.hm-about-desc {
+    color: #888;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+.hm-about-section {
+    margin-top: 25px;
+}
+.hm-about-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hm-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+.hm-feature-item {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.hm-feature-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+.hm-feature-text {
+    color: #ddd;
+    font-size: 0.9rem;
+}
+.hm-feature-text strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.hm-info-table {
+    width: 100%;
+}
+.hm-info-table tr {
+    border-bottom: 1px solid #333;
+}
+.hm-info-table tr:last-child {
+    border-bottom: none;
+}
+.hm-info-table td {
+    padding: 10px 0;
+}
+.hm-info-table td:first-child {
+    color: #888;
+    width: 150px;
+}
+.hm-info-table td:last-child {
+    color: #fff;
+    font-family: monospace;
+}
+
+.hm-about-links {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.hm-about-link {
+    background: #333;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+.hm-about-link:hover {
+    background: #444;
+    text-decoration: none;
+    color: #fff;
+}
+
+.hm-credits {
+    text-align: center;
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #333;
+}
+</style>
+
+<div class="hm-about">
+    <div class="hm-about-card">
+        <div class="hm-about-header">
+            <div class="hm-about-logo">📡</div>
+            <div class="hm-about-title">Huawei Manager</div>
+            <div class="hm-about-version">Version 1.0.0</div>
+            <p class="hm-about-desc">
+                Comprehensive Huawei LTE modem management tool for OpenWrt.<br>
+                Monitor, configure, and automate your modem with ease.
+            </p>
+        </div>
+        
+        <div class="hm-about-section">
+            <div class="hm-about-section-title">✨ Features</div>
+            <div class="hm-feature-grid">
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">📊</div>
+                    <div class="hm-feature-text">
+                        <strong>Real-time Dashboard</strong>
+                        Monitor signal, traffic, and device info in real-time
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">🎯</div>
+                    <div class="hm-feature-text">
+                        <strong>IP Agent</strong>
+                        Automatic IP hunting with auto-reconnect
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">📶</div>
+                    <div class="hm-feature-text">
+                        <strong>Band Selection</strong>
+                        Configure network mode and LTE bands
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">📡</div>
+                    <div class="hm-feature-text">
+                        <strong>APN Management</strong>
+                        Create, edit, and manage APN profiles
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">📱</div>
+                    <div class="hm-feature-text">
+                        <strong>Multi-Device</strong>
+                        Manage multiple modems simultaneously
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">📲</div>
+                    <div class="hm-feature-text">
+                        <strong>Telegram Notifications</strong>
+                        Get alerts on IP changes and events
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">📝</div>
+                    <div class="hm-feature-text">
+                        <strong>Logging</strong>
+                        Comprehensive logging with web viewer
+                    </div>
+                </div>
+                <div class="hm-feature-item">
+                    <div class="hm-feature-icon">🔓</div>
+                    <div class="hm-feature-text">
+                        <strong>Open Source</strong>
+                        Free & open source software (MIT License)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hm-about-section">
+            <div class="hm-about-section-title">ℹ️ System Information</div>
+            <table class="hm-info-table">
+                <tr>
+                    <td>Package</td>
+                    <td>huawei-manager</td>
+                </tr>
+                <tr>
+                    <td>Version</td>
+                    <td>1.0.0-1</td>
+                </tr>
+                <tr>
+                    <td>Architecture</td>
+                    <td>all</td>
+                </tr>
+                <tr>
+                    <td>Service Status</td>
+                    <td id="service-status">Checking...</td>
+                </tr>
+                <tr>
+                    <td>Devices</td>
+                    <td id="device-count">-</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="hm-about-section">
+            <div class="hm-about-section-title">🔗 Service Control</div>
+            <div class="hm-about-links">
+                <a href="javascript:void(0)" class="hm-about-link" onclick="serviceControl('restart')">
+                    🔄 Restart Service
+                </a>
+                <a href="javascript:void(0)" class="hm-about-link" onclick="serviceControl('stop')">
+                    ⏹️ Stop Service
+                </a>
+                <a href="javascript:void(0)" class="hm-about-link" onclick="serviceControl('start')">
+                    ▶️ Start Service
+                </a>
+            </div>
+        </div>
+        
+        <div class="hm-credits">
+            <p>Built with ❤️ for OpenWrt
+                <br/>
+                by <a href="http://t.me/must_a_kim" style="color: #4CAF50;">Must_A_Kim</a>
+            </p>
+            <p>Uses <a href="https://github.com/Salamek/huawei-lte-api" style="color: #4CAF50;">huawei-lte-api</a> for modem communication</p>
+            <p style="margin-top: 10px;">MIT License</p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var apiBase = '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "api")%>';
+
+function fetchJSON(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try { callback(null, JSON.parse(xhr.responseText)); }
+                catch(e) { callback(e, null); }
+            } else {
+                callback(new Error('HTTP ' + xhr.status), null);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function loadInfo() {
+    // Check service status
+    fetchJSON(apiBase + '/status', function(err, data) {
+        var statusEl = document.getElementById('service-status');
+        if (err || !data) {
+            statusEl.innerHTML = '<span style="color: #f44336;">⚠️ Not Running</span>';
+        } else if (data.devices && Object.keys(data.devices).length > 0) {
+            statusEl.innerHTML = '<span style="color: #4CAF50;">✅ Running</span>';
+        } else {
+            statusEl.innerHTML = '<span style="color: #ff9800;">⏳ Running (No Devices)</span>';
+        }
+    });
+    
+    // Get device count
+    fetchJSON(apiBase + '/devices', function(err, data) {
+        var countEl = document.getElementById('device-count');
+        if (data && data.devices) {
+            countEl.innerText = data.devices.length + ' configured';
+        } else {
+            countEl.innerText = '0';
+        }
+    });
+}
+
+function serviceControl(action) {
+    var cmd = '/etc/init.d/huawei-manager ' + action;
+    if (!confirm('Are you sure you want to ' + action + ' the service?')) return;
+    
+    // Note: This would require a backend endpoint to execute
+    alert('Service ' + action + ' requested.\n\nRun manually: ' + cmd);
+}
+
+// Load info on page load
+loadInfo();
+//]]>
+</script>

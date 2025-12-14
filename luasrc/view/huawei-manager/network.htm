@@ -1,0 +1,989 @@
+<%# Huawei Manager - Network Settings View %>
+<%# Band Selection, APN Management, USSD %>
+
+<style type="text/css">
+.hm-network {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.hm-network-header {
+    background: linear-gradient(145deg, #1a1a1a, #222);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.hm-network-header label {
+    color: #aaa;
+    font-weight: 500;
+}
+.hm-network-header select {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+/* Tabs */
+.hm-tabs {
+    display: flex;
+    gap: 5px;
+    background: #1a1a1a;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+.hm-tab {
+    padding: 10px 20px;
+    background: transparent;
+    color: #888;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.hm-tab:hover {
+    background: #2a2a2a;
+    color: #fff;
+}
+.hm-tab.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: #fff;
+}
+
+.hm-tab-content {
+    display: none;
+}
+.hm-tab-content.active {
+    display: block;
+}
+
+/* Cards */
+.hm-network-card {
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #333;
+}
+.hm-network-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Form Elements */
+.hm-form-group {
+    margin-bottom: 15px;
+}
+.hm-form-label {
+    display: block;
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+.hm-form-input, .hm-form-select {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+}
+.hm-form-input:focus, .hm-form-select:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+.hm-form-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Buttons */
+.hm-btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.hm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+.hm-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.hm-btn-secondary {
+    background: #333;
+    border: 1px solid #444;
+}
+.hm-btn-secondary:hover {
+    background: #444;
+    box-shadow: none;
+}
+.hm-btn-danger {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+.hm-btn-danger:hover {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Band Selection */
+.hm-band-mode {
+    margin-bottom: 20px;
+}
+.hm-band-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+.hm-band-item {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.hm-band-item:hover {
+    border-color: #4CAF50;
+}
+.hm-band-item.selected {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: #4CAF50;
+}
+.hm-band-item input {
+    display: none;
+}
+.hm-band-name {
+    font-weight: 600;
+    color: #fff;
+}
+.hm-band-freq {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* APN List */
+.hm-apn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hm-apn-item {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.hm-apn-item.default {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+}
+.hm-apn-info {
+    flex: 1;
+}
+.hm-apn-name {
+    font-weight: 600;
+    color: #fff;
+}
+.hm-apn-value {
+    font-size: 0.85rem;
+    color: #888;
+    font-family: monospace;
+}
+.hm-apn-badge {
+    background: #4CAF50;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+.hm-apn-actions {
+    display: flex;
+    gap: 8px;
+}
+.hm-apn-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
+
+/* USSD */
+.hm-ussd-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.hm-ussd-input-group input {
+    flex: 1;
+}
+.hm-ussd-response {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 100px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #4CAF50;
+}
+.hm-ussd-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+.hm-ussd-preset {
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.hm-ussd-preset:hover {
+    background: #444;
+}
+
+/* Loading */
+.hm-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.hm-loading-overlay.active {
+    display: flex;
+}
+.hm-loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #333;
+    border-top-color: #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Toast Notifications */
+.hm-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.hm-toast {
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    border: 1px solid #333;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 420px;
+    pointer-events: auto;
+    animation: hm-toast-slide-in 0.3s ease;
+    border-left: 4px solid #4CAF50;
+}
+.hm-toast.success {
+    border-left-color: #4CAF50;
+}
+.hm-toast.error {
+    border-left-color: #f44336;
+}
+.hm-toast.warning {
+    border-left-color: #ff9800;
+}
+.hm-toast.info {
+    border-left-color: #2196f3;
+}
+.hm-toast-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+.hm-toast.success .hm-toast-icon {
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.15);
+}
+.hm-toast.error .hm-toast-icon {
+    color: #f44336;
+    background: rgba(244, 67, 54, 0.15);
+}
+.hm-toast.warning .hm-toast-icon {
+    color: #ff9800;
+    background: rgba(255, 152, 0, 0.15);
+}
+.hm-toast.info .hm-toast-icon {
+    color: #2196f3;
+    background: rgba(33, 150, 243, 0.15);
+}
+.hm-toast-message {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #e0e0e0;
+}
+.hm-toast-close {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.hm-toast-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+.hm-toast.hiding {
+    animation: hm-toast-slide-out 0.3s ease forwards;
+}
+@keyframes hm-toast-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@keyframes hm-toast-slide-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .hm-band-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .hm-tabs {
+        flex-wrap: wrap;
+    }
+    .hm-ussd-input-group {
+        flex-direction: column;
+    }
+}
+</style>
+
+<div class="hm-network">
+    <!-- Device Selector -->
+    <div class="hm-network-header">
+        <label for="device-select">📱 Select Device:</label>
+        <select id="device-select" onchange="onDeviceChange()">
+            <option value="">Loading devices...</option>
+        </select>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="hm-tabs">
+        <button class="hm-tab active" onclick="switchTab('bands')">📶 Band Selection</button>
+        <button class="hm-tab" onclick="switchTab('apn')">📡 APN Management</button>
+        <button class="hm-tab" onclick="switchTab('ussd')">📞 USSD</button>
+    </div>
+    
+    <!-- Band Selection Tab -->
+    <div id="tab-bands" class="hm-tab-content active">
+        <div class="hm-network-card">
+            <div class="hm-network-card-title">📶 Network Mode & Band Selection</div>
+            
+            <div class="hm-band-mode">
+                <div class="hm-form-group">
+                    <label class="hm-form-label">Network Mode</label>
+                    <select id="network-mode" class="hm-form-select">
+                        <option value="00">Auto (All Networks)</option>
+                        <option value="03">4G Only (LTE)</option>
+                        <option value="02">3G Only (WCDMA)</option>
+                        <option value="01">2G Only (GSM)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="hm-form-group">
+                <label class="hm-form-label">LTE Bands</label>
+                <div id="lte-bands" class="hm-band-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="hm-btn" onclick="saveBands()">💾 Apply Settings</button>
+                <button class="hm-btn hm-btn-secondary" onclick="loadBands()">🔄 Refresh</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- APN Management Tab -->
+    <div id="tab-apn" class="hm-tab-content">
+        <div class="hm-network-card">
+            <div class="hm-network-card-title">📡 APN Profiles</div>
+            
+            <div id="apn-list" class="hm-apn-list">
+                <p style="color: #888;">Loading APN profiles...</p>
+            </div>
+            
+            <hr style="border-color: #333; margin: 20px 0;">
+            
+            <div class="hm-network-card-title">➕ Create New APN</div>
+            
+            <div class="hm-form-group">
+                <label class="hm-form-label">Profile Name</label>
+                <input type="text" id="apn-name" class="hm-form-input" placeholder="My APN">
+            </div>
+            <div class="hm-form-group">
+                <label class="hm-form-label">APN</label>
+                <input type="text" id="apn-apn" class="hm-form-input" placeholder="internet">
+            </div>
+            <div class="hm-form-group">
+                <label class="hm-form-label">Username (optional)</label>
+                <input type="text" id="apn-username" class="hm-form-input" placeholder="">
+            </div>
+            <div class="hm-form-group">
+                <label class="hm-form-label">Password (optional)</label>
+                <input type="password" id="apn-password" class="hm-form-input" placeholder="">
+            </div>
+            <div class="hm-form-group">
+                <label class="hm-form-label">Authentication</label>
+                <select id="apn-auth" class="hm-form-select">
+                    <option value="0">None</option>
+                    <option value="1">PAP</option>
+                    <option value="2">CHAP</option>
+                </select>
+            </div>
+            
+            <button class="hm-btn" onclick="createApn()">➕ Create APN</button>
+        </div>
+    </div>
+    
+    <!-- USSD Tab -->
+    <div id="tab-ussd" class="hm-tab-content">
+        <div class="hm-network-card">
+            <div class="hm-network-card-title">📞 USSD Code</div>
+            
+            <div class="hm-form-group">
+                <label class="hm-form-label">Common Codes</label>
+                <div class="hm-ussd-presets">
+                    <button class="hm-ussd-preset" onclick="setUssd('*888#')">*888# (Balance)</button>
+                    <button class="hm-ussd-preset" onclick="setUssd('*123#')">*123# (Menu)</button>
+                    <button class="hm-ussd-preset" onclick="setUssd('*111#')">*111# (Info)</button>
+                    <button class="hm-ussd-preset" onclick="setUssd('*100#')">*100# (Balance)</button>
+                </div>
+            </div>
+            
+            <div class="hm-ussd-input-group">
+                <input type="text" id="ussd-code" class="hm-form-input" placeholder="*888#">
+                <button class="hm-btn" onclick="sendUssd()">📤 Send</button>
+            </div>
+            
+            <div class="hm-form-group">
+                <label class="hm-form-label">Response</label>
+                <div id="ussd-response" class="hm-ussd-response">
+                    Enter a USSD code and click Send to see the response.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="hm-loading-overlay">
+    <div class="hm-loading-spinner"></div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="hm-toast-container"></div>
+
+<script type="text/javascript">
+//<![CDATA[
+var currentDevice = null;
+var apiBase = '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "api")%>';
+
+// LTE Bands definition
+// LTE Bands - Limited to B1, B3, B8, B40 as per user requirements
+var lteBands = [
+    { id: 1, name: 'B1', freq: '2100 MHz (FDD)', bit: 0 },
+    { id: 3, name: 'B3', freq: '1800 MHz (FDD)', bit: 2 },
+    { id: 8, name: 'B8', freq: '900 MHz (FDD)', bit: 7 },
+    { id: 40, name: 'B40', freq: '2300 MHz (TDD)', bit: 39 }
+];
+
+function fetchJSON(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try { callback(null, JSON.parse(xhr.responseText)); }
+                catch(e) { callback(e, null); }
+            } else {
+                callback(new Error('HTTP ' + xhr.status), null);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function showLoading() {
+    document.getElementById('loading-overlay').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('active');
+}
+
+// Toast notification system
+function showToast(message, type) {
+    type = type || 'success';
+    var container = document.getElementById('toast-container');
+    
+    var toast = document.createElement('div');
+    toast.className = 'hm-toast ' + type;
+    
+    var icon = '';
+    switch(type) {
+        case 'success': icon = '✓'; break;
+        case 'error': icon = '✗'; break;
+        case 'warning': icon = '⚠'; break;
+        case 'info': icon = 'ℹ'; break;
+        default: icon = '✓';
+    }
+    
+    toast.innerHTML =
+        '<span class="hm-toast-icon">' + icon + '</span>' +
+        '<span class="hm-toast-message">' + message + '</span>' +
+        '<button class="hm-toast-close" onclick="closeToast(this)" title="Dismiss">×</button>';
+    
+    container.appendChild(toast);
+    
+    // Auto-dismiss after 4 seconds
+    setTimeout(function() {
+        if (toast.parentNode) {
+            toast.classList.add('hiding');
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }
+    }, 4000);
+}
+
+function closeToast(btn) {
+    var toast = btn.parentNode;
+    toast.classList.add('hiding');
+    setTimeout(function() {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 300);
+}
+
+function switchTab(tabId) {
+    // Update tab buttons
+    var tabs = document.querySelectorAll('.hm-tab');
+    tabs.forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Update tab content
+    var contents = document.querySelectorAll('.hm-tab-content');
+    contents.forEach(function(content) {
+        content.classList.remove('active');
+    });
+    document.getElementById('tab-' + tabId).classList.add('active');
+    
+    // Load data for tab
+    if (tabId === 'bands') loadBands();
+    else if (tabId === 'apn') loadApns();
+}
+
+function loadDevices() {
+    fetchJSON(apiBase + '/devices', function(err, data) {
+        var select = document.getElementById('device-select');
+        
+        if (err || !data || !data.devices || data.devices.length === 0) {
+            select.innerHTML = '<option value="">No devices found</option>';
+            return;
+        }
+        
+        select.innerHTML = '';
+        data.devices.forEach(function(device) {
+            var option = document.createElement('option');
+            option.value = device.id;
+            option.text = device.name;
+            select.appendChild(option);
+        });
+        
+        // Try to select default device from localStorage
+        var defaultDevice = localStorage.getItem('hm_default_device');
+        var found = false;
+        if (defaultDevice) {
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === defaultDevice) {
+                    select.value = defaultDevice;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found && data.devices.length > 0) {
+            select.value = data.devices[0].id;
+        }
+        
+        currentDevice = select.value;
+        loadBands();
+    });
+}
+
+function onDeviceChange() {
+    currentDevice = document.getElementById('device-select').value;
+    loadBands();
+    loadApns();
+}
+
+// ===== Band Selection =====
+
+function renderBandGrid() {
+    var container = document.getElementById('lte-bands');
+    var html = '';
+    
+    lteBands.forEach(function(band) {
+        html += '<label class="hm-band-item" data-band="' + band.id + '">' +
+            '<input type="checkbox" value="' + band.bit + '">' +
+            '<div class="hm-band-name">' + band.name + '</div>' +
+            '<div class="hm-band-freq">' + band.freq + '</div>' +
+            '</label>';
+    });
+    
+    container.innerHTML = html;
+    
+    // Add click handlers - prevent default label behavior to avoid double-toggle
+    container.querySelectorAll('.hm-band-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            // Prevent default label behavior (which would toggle checkbox automatically)
+            e.preventDefault();
+            // Toggle selected state
+            this.classList.toggle('selected');
+            this.querySelector('input').checked = this.classList.contains('selected');
+        });
+    });
+}
+
+function loadBands() {
+    if (!currentDevice) return;
+
+    showLoading();
+    fetchJSON(apiBase + '/modem/bands?device=' + encodeURIComponent(currentDevice), function(err, result) {
+        hideLoading();
+
+        if (err || !result || !result.success) {
+            console.error('Failed to load bands:', result ? result.error : err);
+            return;
+        }
+
+        var data = result.data || {};
+        var networkMode = data.NetworkMode || '00';
+        var lteBand = data.LTEBand || '7FFFFFFFFFFFFFFF';
+
+        // Set network mode
+        document.getElementById('network-mode').value = networkMode;
+
+        // Set LTE bands using BigInt to handle 64-bit values
+        var lteBandBigInt;
+        try {
+            lteBandBigInt = BigInt('0x' + lteBand);
+        } catch(e) {
+            console.error('Failed to parse LTE band:', e);
+            lteBandBigInt = BigInt('0x7FFFFFFFFFFFFFFF');
+        }
+
+        document.querySelectorAll('#lte-bands .hm-band-item').forEach(function(item) {
+            var checkbox = item.querySelector('input');
+            var bit = BigInt(checkbox.value);
+            var isSelected = (lteBandBigInt & (BigInt(1) << bit)) !== BigInt(0);
+
+            if (isSelected) {
+                item.classList.add('selected');
+                checkbox.checked = true;
+            } else {
+                item.classList.remove('selected');
+                checkbox.checked = false;
+            }
+        });
+    });
+}
+
+function saveBands() {
+    if (!currentDevice) return;
+
+    var networkMode = document.getElementById('network-mode').value;
+
+    // Calculate LTE band bitmask using BigInt for 64-bit support
+    var lteBandBigInt = BigInt(0);
+    document.querySelectorAll('#lte-bands input:checked').forEach(function(cb) {
+        lteBandBigInt |= (BigInt(1) << BigInt(cb.value));
+    });
+
+    if (lteBandBigInt === BigInt(0)) {
+        lteBandBigInt = BigInt('0x7FFFFFFFFFFFFFFF'); // All bands if none selected
+    }
+
+    var lteBand = lteBandBigInt.toString(16).toUpperCase();
+
+    showLoading();
+    var url = apiBase + '/modem/bands?device=' + encodeURIComponent(currentDevice) +
+        '&network_mode=' + networkMode +
+        '&lte_band=' + lteBand +
+        '&network_band=3FFFFFFF';
+
+    fetchJSON(url, function(err, result) {
+        hideLoading();
+
+        if (result && result.success) {
+            showToast('Band settings applied. Modem may reconnect.', 'success');
+        } else {
+            showToast('Failed to apply settings: ' + (result ? result.error : 'Unknown error'), 'error');
+        }
+    });
+}
+
+// ===== APN Management =====
+
+function loadApns() {
+    if (!currentDevice) return;
+    
+    showLoading();
+    fetchJSON(apiBase + '/modem/apn?device=' + encodeURIComponent(currentDevice), function(err, result) {
+        hideLoading();
+        
+        var container = document.getElementById('apn-list');
+        
+        if (err || !result || !result.success) {
+            container.innerHTML = '<p style="color: #f44336;">Failed to load APN profiles</p>';
+            return;
+        }
+        
+        var profiles = result.data;
+        if (!profiles || !profiles.Profiles) {
+            container.innerHTML = '<p style="color: #888;">No APN profiles found</p>';
+            return;
+        }
+        
+        var profileList = profiles.Profiles.Profile;
+        if (!Array.isArray(profileList)) {
+            profileList = profileList ? [profileList] : [];
+        }
+        
+        var defaultProfile = profiles.Profiles.CurrentProfile || profiles.CurrentProfile;
+        
+        var html = '';
+        profileList.forEach(function(p) {
+            var isDefault = (p.Index === defaultProfile);
+            html += '<div class="hm-apn-item ' + (isDefault ? 'default' : '') + '">' +
+                '<div class="hm-apn-info">' +
+                '  <div class="hm-apn-name">' + (p.Name || 'Profile ' + p.Index) + 
+                   (isDefault ? '<span class="hm-apn-badge">Default</span>' : '') + '</div>' +
+                '  <div class="hm-apn-value">' + (p.ApnName || p.APN || '-') + '</div>' +
+                '</div>' +
+                '<div class="hm-apn-actions">' +
+                (isDefault ? '' : '<button class="hm-btn hm-btn-secondary hm-apn-btn" onclick="setDefaultApn(\'' + p.Index + '\')">Set Default</button>') +
+                '  <button class="hm-btn hm-btn-danger hm-apn-btn" onclick="deleteApn(\'' + p.Index + '\')">Delete</button>' +
+                '</div>' +
+                '</div>';
+        });
+        
+        container.innerHTML = html || '<p style="color: #888;">No APN profiles found</p>';
+    });
+}
+
+function createApn() {
+    var name = document.getElementById('apn-name').value;
+    var apn = document.getElementById('apn-apn').value;
+    var username = document.getElementById('apn-username').value;
+    var password = document.getElementById('apn-password').value;
+    var auth = document.getElementById('apn-auth').value;
+    
+    if (!name || !apn) {
+        showToast('Please enter profile name and APN', 'warning');
+        return;
+    }
+    
+    showLoading();
+    var url = apiBase + '/modem/apn_create?device=' + encodeURIComponent(currentDevice) +
+        '&name=' + encodeURIComponent(name) +
+        '&apn=' + encodeURIComponent(apn) +
+        '&username=' + encodeURIComponent(username) +
+        '&password=' + encodeURIComponent(password) +
+        '&auth_type=' + auth;
+    
+    fetchJSON(url, function(err, result) {
+        hideLoading();
+        
+        if (result && result.success) {
+            showToast('APN created successfully', 'success');
+            document.getElementById('apn-name').value = '';
+            document.getElementById('apn-apn').value = '';
+            document.getElementById('apn-username').value = '';
+            document.getElementById('apn-password').value = '';
+            loadApns();
+        } else {
+            showToast('Failed to create APN: ' + (result ? result.error : 'Unknown error'), 'error');
+        }
+    });
+}
+
+function deleteApn(profileId) {
+    if (!confirm('Are you sure you want to delete this APN profile?')) return;
+    
+    showLoading();
+    fetchJSON(apiBase + '/modem/apn_delete?device=' + encodeURIComponent(currentDevice) + '&profile_id=' + profileId, function(err, result) {
+        hideLoading();
+        
+        if (result && result.success) {
+            showToast('APN profile deleted', 'success');
+            loadApns();
+        } else {
+            showToast('Failed to delete APN: ' + (result ? result.error : 'Unknown error'), 'error');
+        }
+    });
+}
+
+function setDefaultApn(profileId) {
+    showLoading();
+    fetchJSON(apiBase + '/modem/apn_default?device=' + encodeURIComponent(currentDevice) + '&profile_id=' + profileId, function(err, result) {
+        hideLoading();
+        
+        if (result && result.success) {
+            showToast('Default APN updated', 'success');
+            loadApns();
+        } else {
+            showToast('Failed to set default APN: ' + (result ? result.error : 'Unknown error'), 'error');
+        }
+    });
+}
+
+// ===== USSD =====
+
+function setUssd(code) {
+    document.getElementById('ussd-code').value = code;
+}
+
+function sendUssd() {
+    var code = document.getElementById('ussd-code').value;
+    if (!code) {
+        showToast('Please enter a USSD code', 'warning');
+        return;
+    }
+    
+    var responseDiv = document.getElementById('ussd-response');
+    responseDiv.innerText = 'Sending...';
+    responseDiv.style.color = '#888';
+    
+    showLoading();
+    fetchJSON(apiBase + '/modem/ussd?device=' + encodeURIComponent(currentDevice) + '&code=' + encodeURIComponent(code), function(err, result) {
+        hideLoading();
+        
+        if (result && result.success && result.data) {
+            responseDiv.innerText = result.data.content || result.data.Content || JSON.stringify(result.data, null, 2);
+            responseDiv.style.color = '#4CAF50';
+        } else {
+            responseDiv.innerText = 'Error: ' + (result ? result.error : 'Request failed');
+            responseDiv.style.color = '#f44336';
+        }
+    });
+}
+
+// Initialize
+renderBandGrid();
+loadDevices();
+
+// Auto-switch to tab based on URL parameter (e.g., ?tab=apn)
+(function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var tabParam = urlParams.get('tab');
+    if (tabParam) {
+        // Find and click the matching tab button
+        var tabButtons = document.querySelectorAll('.hm-tab');
+        var tabMap = {
+            'bands': 0,
+            'apn': 1,
+            'ussd': 2
+        };
+        var tabIndex = tabMap[tabParam.toLowerCase()];
+        if (tabIndex !== undefined && tabButtons[tabIndex]) {
+            setTimeout(function() {
+                tabButtons[tabIndex].click();
+            }, 100);
+        }
+    }
+})();
+//]]>
+</script>

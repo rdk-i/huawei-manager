@@ -1,0 +1,1637 @@
+<%# Huawei Manager - Dashboard View %> <%# Standard theme matching OpenWrt/LuCI
+styling %>
+
+<style type="text/css">
+  /* ============================================
+   HUAWEI MANAGER DASHBOARD - STANDARD THEME
+   Matching OpenWrt/LuCI styling (ip_agent.htm)
+   ============================================ */
+
+  /* Base Dashboard Container */
+  .hm-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 0;
+  }
+
+  /* Device Selector Header */
+  .hm-device-selector {
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 10px;
+    padding: 15px 18px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .hm-device-selector label {
+    color: #888;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .hm-device-selector select {
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    min-width: 220px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .hm-device-selector select:hover,
+  .hm-device-selector select:focus {
+    border-color: #4caf50;
+    outline: none;
+  }
+
+  .hm-btn-group {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .hm-refresh-btn {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hm-refresh-btn:hover {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    transform: translateY(-1px);
+  }
+
+  .hm-refresh-btn:disabled {
+    background: #555;
+    color: #888;
+    cursor: wait;
+    transform: none;
+  }
+
+  /* Connection Status */
+  .hm-connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  .hm-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #666;
+  }
+
+  .hm-status-dot.connected {
+    background: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+  }
+
+  .hm-status-dot.disconnected {
+    background: #f44336;
+  }
+
+  .hm-status-dot.loading {
+    background: #ff9800;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* ============================================
+   GRID LAYOUTS
+   ============================================ */
+
+  .hm-cards-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .hm-card-full {
+    width: 100%;
+  }
+
+  @media (max-width: 1200px) {
+    .hm-cards-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hm-cards-row {
+      grid-template-columns: 1fr;
+    }
+    .hm-dashboard {
+      padding: 10px 0;
+    }
+  }
+
+  /* ============================================
+   CARD BASE STYLES
+   ============================================ */
+
+  .hm-card {
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .hm-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #333;
+  }
+
+  .hm-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: rgba(76, 175, 80, 0.2);
+  }
+
+  .hm-card-icon.signal {
+    background: rgba(76, 175, 80, 0.2);
+  }
+  .hm-card-icon.data {
+    background: rgba(33, 150, 243, 0.2);
+  }
+  .hm-card-icon.actions {
+    background: rgba(255, 152, 0, 0.2);
+  }
+  .hm-card-icon.device {
+    background: rgba(33, 150, 243, 0.2);
+  }
+  .hm-card-icon.cell {
+    background: rgba(0, 188, 212, 0.2);
+  }
+  .hm-card-icon.connection {
+    background: rgba(76, 175, 80, 0.2);
+  }
+  .hm-card-icon.monthly {
+    background: rgba(156, 39, 176, 0.2);
+  }
+
+  .hm-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .hm-card-subtitle {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* ============================================
+   SIGNAL STRENGTH CARD
+   ============================================ */
+
+  .hm-signal-hero {
+    text-align: center;
+    padding: 15px 0;
+  }
+
+  .hm-signal-value {
+    font-size: 2.8rem;
+    font-weight: 700;
+    font-family: "Consolas", "Monaco", monospace;
+    color: #4caf50;
+    line-height: 1;
+  }
+
+  .hm-signal-value.good {
+    color: #4caf50;
+  }
+  .hm-signal-value.medium {
+    color: #ff9800;
+  }
+  .hm-signal-value.bad {
+    color: #f44336;
+  }
+
+  .hm-signal-unit {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 6px;
+  }
+
+  .hm-signal-bars {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .hm-signal-bar {
+    width: 10px;
+    background: #333;
+    border-radius: 3px;
+    transition: background 0.3s;
+  }
+
+  .hm-signal-bar.active {
+    background: #4caf50;
+  }
+
+  .hm-signal-bar:nth-child(1) {
+    height: 12px;
+  }
+  .hm-signal-bar:nth-child(2) {
+    height: 18px;
+  }
+  .hm-signal-bar:nth-child(3) {
+    height: 24px;
+  }
+  .hm-signal-bar:nth-child(4) {
+    height: 30px;
+  }
+  .hm-signal-bar:nth-child(5) {
+    height: 36px;
+  }
+
+  .hm-signal-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .hm-metric-item {
+    text-align: center;
+    padding: 10px 6px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 1px solid #333;
+  }
+
+  .hm-metric-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ddd;
+    font-family: "Consolas", monospace;
+  }
+
+  .hm-metric-value.highlight {
+    color: #4caf50;
+  }
+
+  .hm-metric-label {
+    font-size: 0.65rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  /* ============================================
+   DATA USAGE CARD
+   ============================================ */
+
+  .hm-data-hero {
+    text-align: center;
+    padding: 15px 0;
+  }
+
+  .hm-data-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: "Consolas", "Monaco", monospace;
+    color: #2196f3;
+    line-height: 1;
+  }
+
+  .hm-data-label {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 6px;
+  }
+
+  .hm-speed-row {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+  }
+
+  .hm-speed-item {
+    text-align: center;
+  }
+
+  .hm-speed-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: "Consolas", monospace;
+  }
+
+  .hm-speed-value.download {
+    color: #4caf50;
+  }
+  .hm-speed-value.upload {
+    color: #ff9800;
+  }
+
+  .hm-speed-label {
+    font-size: 0.7rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ============================================
+   QUICK ACTIONS CARD
+   ============================================ */
+
+  .hm-actions-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .hm-action-btn {
+    background: transparent;
+    color: #ddd;
+    border: 1px solid #444;
+    padding: 12px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .hm-action-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #555;
+  }
+
+  .hm-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .hm-action-btn.reboot {
+    border-color: rgba(244, 67, 54, 0.5);
+    color: #f44336;
+  }
+
+  .hm-action-btn.reboot:hover {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: #f44336;
+  }
+
+  .hm-action-btn.config {
+    border-color: rgba(156, 39, 176, 0.5);
+    color: #9c27b0;
+  }
+
+  .hm-action-btn.config:hover {
+    background: rgba(156, 39, 176, 0.1);
+    border-color: #9c27b0;
+  }
+
+  .hm-action-btn.ipagent {
+    border-color: rgba(76, 175, 80, 0.5);
+    color: #4caf50;
+  }
+
+  .hm-action-btn.ipagent:hover {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: #4caf50;
+  }
+
+  .hm-action-btn.telegram {
+    border-color: rgba(0, 188, 212, 0.5);
+    color: #00bcd4;
+  }
+
+  .hm-action-btn.telegram:hover {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: #00bcd4;
+  }
+
+  .hm-action-btn.band {
+    border-color: rgba(33, 150, 243, 0.5);
+    color: #2196f3;
+  }
+
+  .hm-action-btn.band:hover {
+    background: rgba(33, 150, 243, 0.1);
+    border-color: #2196f3;
+  }
+
+  .hm-action-btn.apn {
+    border-color: rgba(255, 152, 0, 0.5);
+    color: #ff9800;
+  }
+
+  .hm-action-btn.apn:hover {
+    background: rgba(255, 152, 0, 0.1);
+    border-color: #ff9800;
+  }
+
+  /* ============================================
+   INFO TABLE STYLES
+   ============================================ */
+
+  .hm-info-table {
+    width: 100%;
+  }
+
+  .hm-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
+  }
+
+  .hm-info-row:last-child {
+    border-bottom: none;
+  }
+
+  .hm-info-label {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .hm-info-value {
+    color: #fff;
+    font-family: "Consolas", monospace;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .hm-info-value.highlight {
+    color: #4caf50;
+  }
+  .hm-info-value.good {
+    color: #4caf50;
+  }
+  .hm-info-value.warning {
+    color: #ff9800;
+  }
+  .hm-info-value.error {
+    color: #f44336;
+  }
+
+  /* Device Info Grid */
+  .hm-device-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+  }
+
+  .hm-device-item {
+    text-align: center;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 1px solid #333;
+  }
+
+  .hm-device-item-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ddd;
+    font-family: "Consolas", monospace;
+    word-break: break-all;
+  }
+
+  .hm-device-item-label {
+    font-size: 0.7rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 1200px) {
+    .hm-device-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hm-device-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
+
+  .hm-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+  }
+
+  .hm-loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 4px solid #333;
+    border-top-color: #4caf50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .hm-no-device {
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 10px;
+    border: 1px solid #333;
+  }
+
+  .hm-no-device-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+  }
+
+  .hm-no-device-text {
+    color: #888;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+  }
+
+  .hm-no-device a {
+    color: #4caf50;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .hm-no-device a:hover {
+    text-decoration: underline;
+  }
+
+  /* Utility Classes */
+  .mt-10 {
+    margin-top: 10px;
+  }
+  .mt-20 {
+    margin-top: 15px;
+  }
+</style>
+
+<div class="hm-dashboard">
+  <div class="hm-device-selector">
+    <label for="device-select">📱 Select Device:</label>
+    <select id="device-select" onchange="loadDeviceData()">
+      <option value="">Loading devices...</option>
+    </select>
+    <div id="connection-status" class="hm-connection-status">
+      <span class="hm-status-dot loading"></span>
+      <span id="connection-text">Connecting...</span>
+    </div>
+    <div class="hm-btn-group">
+      <button id="refresh-btn" class="hm-refresh-btn" onclick="refreshData()">
+        🔄 Refresh
+      </button>
+      <button class="hm-refresh-btn" onclick="setDefaultDevice()" title="Set this device as default">
+        ⭐ Set Default
+      </button>
+    </div>
+  </div>
+
+  <div id="dashboard-content">
+    <div class="hm-loading">
+      <div class="hm-loading-spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  //<![CDATA[
+  var currentDevice = null;
+  var refreshInterval = null;
+  var isLoading = false;
+
+  var apiBase =
+    '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "api")%>';
+  var networkPageUrl =
+    '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "network")%>';
+  var configPageUrl =
+    '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "config")%>';
+
+  function fetchJSON(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          try {
+            callback(null, JSON.parse(xhr.responseText));
+          } catch (e) {
+            callback(e, null);
+          }
+        } else {
+          callback(new Error("HTTP " + xhr.status), null);
+        }
+      }
+    };
+    xhr.send();
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return "0.00 B";
+    bytes = parseInt(bytes);
+    var k = 1024;
+    var sizes = ["B", "KB", "MB", "GB", "TB"];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    if (i >= sizes.length) i = sizes.length - 1;
+    return (bytes / Math.pow(k, i)).toFixed(2) + " " + sizes[i];
+  }
+
+  function formatSpeed(bytes) {
+    if (!bytes || bytes === 0) return "0 Kbps";
+    bytes = parseInt(bytes);
+    var kbps = (bytes * 8) / 1024;
+    if (kbps >= 1024) return (kbps / 1024).toFixed(1) + " Mbps";
+    return kbps.toFixed(0) + " Kbps";
+  }
+
+  function formatDuration(seconds) {
+    if (!seconds) return "--";
+    seconds = parseInt(seconds);
+    var days = Math.floor(seconds / 86400);
+    var hours = Math.floor((seconds % 86400) / 3600);
+    var mins = Math.floor((seconds % 3600) / 60);
+    if (days > 0) return days + "d " + hours + "h";
+    if (hours > 0) return hours + "h " + mins + "m";
+    return mins + "m " + (seconds % 60) + "s";
+  }
+
+  function formatConnectionDays(seconds) {
+    if (!seconds) return "--";
+    seconds = parseInt(seconds);
+    var days = Math.floor(seconds / 86400);
+    var hours = Math.floor((seconds % 86400) / 3600);
+    return days + "d " + hours + "h";
+  }
+
+  function getSignalStrength(rsrp) {
+    if (!rsrp) return { bars: 0, class: "bad" };
+    var val = parseInt(rsrp);
+    if (isNaN(val)) return { bars: 0, class: "bad" };
+    if (val >= -80) return { bars: 5, class: "good" };
+    if (val >= -90) return { bars: 4, class: "good" };
+    if (val >= -100) return { bars: 3, class: "medium" };
+    if (val >= -110) return { bars: 2, class: "medium" };
+    if (val >= -120) return { bars: 1, class: "bad" };
+    return { bars: 0, class: "bad" };
+  }
+
+  function getNetworkModeDisplay(networkType, networkTypeEx) {
+    // LTE-A detection based on CurrentNetworkTypeEx
+    // Reference: Huawei API returns "1011" for LTE-A (Carrier Aggregation active)
+    // "101" is regular LTE (NOT CA)
+    if (networkTypeEx === "1011" || networkTypeEx === 1011) {
+      return "LTE-A (4G+)";
+    }
+
+    if (!networkType) return "--";
+    var modes = {
+      0: "No Service",
+      1: "GSM",
+      2: "GPRS (2.5G)",
+      3: "EDGE (2.75G)",
+      4: "WCDMA (3G)",
+      5: "HSDPA (3.5G)",
+      6: "HSUPA (3.5G)",
+      7: "HSPA (3.5G)",
+      8: "TD-SCDMA (3G)",
+      9: "HSPA+ (3.75G)",
+      19: "LTE (4G)",
+      41: "UMTS (3G)",
+      44: "HSPA (3G)",
+      45: "HSPA+ (3G)",
+      46: "DC-HSPA+ (3G)",
+      64: "HSPA (3G)",
+      65: "HSPA+ (3G)",
+      101: "LTE (4G)",
+    };
+    return modes[networkType.toString()] || "Unknown (" + networkType + ")";
+  }
+
+  function parseBandName(band) {
+    if (!band) return "--";
+    var bandStr = band.toString();
+    
+    // Handle H153 format: "15MHz@325(B1)" -> extract just "1"
+    var h153Match = bandStr.match(/\(B(\d+)\)/i);
+    if (h153Match) {
+      return h153Match[1];
+    }
+    
+    // Handle standard formats: BAND3, B3, LTE_BAND3 -> "3"
+    var match = bandStr.match(/(?:LTE_)?BAND?(\d+)/i);
+    if (match) {
+      return match[1];
+    }
+    
+    // If it's already just a number, return as is
+    if (/^\d+$/.test(bandStr.trim())) {
+      return bandStr.trim();
+    }
+    
+    return band;
+  }
+
+  function formatBandwidth(bw) {
+    if (!bw) return "--";
+    var match = bw.toString().match(/(\d+)/);
+    return match ? match[1] + " MHz" : bw;
+  }
+
+  // Band frequency reference mapping (matching reference app)
+  // Returns formatted string like "B3-1800MHz" or "B40-2300MHz (TDD)"
+  function getBandInfo(bandNum) {
+    var bandFreq = {
+      1: "B1-2100MHz",
+      2: "B2-1900MHz",
+      3: "B3-1800MHz",
+      4: "B4-1700MHz",
+      5: "B5-850MHz",
+      7: "B7-2600MHz",
+      8: "B8-900MHz",
+      12: "B12-700MHz",
+      13: "B13-700MHz",
+      17: "B17-700MHz",
+      20: "B20-800MHz",
+      25: "B25-1900MHz",
+      26: "B26-850MHz",
+      28: "B28-700MHz",
+      29: "B29-700MHz",
+      30: "B30-2300MHz",
+      38: "B38-2600MHz (TDD)",
+      39: "B39-1900MHz (TDD)",
+      40: "B40-2300MHz (TDD)",
+      41: "B41-2500MHz (TDD)",
+      42: "B42-3500MHz (TDD)",
+      43: "B43-3700MHz (TDD)",
+      66: "B66-1700MHz",
+      71: "B71-600MHz",
+    };
+    var num = parseInt(bandNum);
+    return bandFreq[num] || "B" + bandNum;
+  }
+
+  // Parse band number from various formats (BAND3, B3, LTE_BAND3, 3, 15MHz@325(B1) etc.)
+  function parseBandNumber(band) {
+    if (!band || band === "--") return null;
+    var bandStr = band.toString().trim();
+    
+    // Handle H153 format: "15MHz@325(B1)" -> extract 1
+    var h153Match = bandStr.match(/\(B(\d+)\)/i);
+    if (h153Match) {
+      return parseInt(h153Match[1]);
+    }
+    
+    // Handle standard formats
+    var match =
+      bandStr.match(/(?:LTE_)?BAND?(\d+)/i) || bandStr.match(/^(\d+)$/);
+    return match ? parseInt(match[1]) : null;
+  }
+
+  // Check if band is TDD
+  function isTDDBand(bandNum) {
+    var tddBands = [
+      33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+    ];
+    return tddBands.indexOf(parseInt(bandNum)) !== -1;
+  }
+
+  // Legacy function for backward compatibility
+  function getBandFrequency(bandNum) {
+    var frequencies = {
+      1: "2100MHz",
+      2: "1900MHz",
+      3: "1800MHz",
+      4: "1700MHz",
+      5: "850MHz",
+      7: "2600MHz",
+      8: "900MHz",
+      12: "700MHz",
+      13: "700MHz",
+      17: "700MHz",
+      20: "800MHz",
+      25: "1900MHz",
+      26: "850MHz",
+      28: "700MHz",
+      29: "700MHz",
+      30: "2300MHz",
+      38: "2600MHz",
+      39: "1900MHz",
+      40: "2300MHz",
+      41: "2500MHz",
+      42: "3500MHz",
+      43: "3700MHz",
+      66: "1700MHz",
+      71: "600MHz",
+    };
+    return frequencies[bandNum] || "";
+  }
+
+  // Format band with frequency info (legacy, uses getBandInfo internally now)
+  function formatBandWithFrequency(band) {
+    var bandNum = parseBandNumber(band);
+    if (bandNum === null) return band || "--";
+    return getBandInfo(bandNum);
+  }
+
+  // Format connected band with carrier aggregation support
+  // Matches reference app format: "B3-1800MHz + B40-2300MHz (TDD) (CA)"
+  function formatConnectedBand(signal, status, netMode) {
+    var bands = [];
+
+    // Get primary cell band (PCell)
+    var primaryBand =
+      signal.band ||
+      signal.Band ||
+      signal.lte_ca_pcell_band ||
+      signal.PcellBand;
+    var pcellBandNum = parseBandNumber(primaryBand);
+
+    if (pcellBandNum) {
+      bands.push(getBandInfo(pcellBandNum));
+    }
+
+    // Check for explicit Secondary Cell bands from API
+    // Huawei API may provide: lte_ca_scell_band, ScellBand, scell_band, lte_scc_band
+    var scellBand =
+      signal.lte_ca_scell_band ||
+      signal.ScellBand ||
+      signal.scell_band ||
+      signal.lte_scc_band ||
+      "";
+    var scellBand2 = signal.lte_ca_scell2_band || "";
+
+    // Parse SCell bands (may be comma/semicolon/plus separated)
+    var scellBands = [];
+    if (scellBand && scellBand !== "0" && scellBand !== "") {
+      var scellList = scellBand.toString().split(/[,;+]/);
+      for (var i = 0; i < scellList.length; i++) {
+        var scNum = parseBandNumber(scellList[i]);
+        if (scNum && scNum !== pcellBandNum) {
+          scellBands.push(scNum);
+        }
+      }
+    }
+    if (scellBand2 && scellBand2 !== "0") {
+      var sc2Num = parseBandNumber(scellBand2);
+      if (
+        sc2Num &&
+        sc2Num !== pcellBandNum &&
+        scellBands.indexOf(sc2Num) === -1
+      ) {
+        scellBands.push(sc2Num);
+      }
+    }
+
+    // Check if CA is active via CurrentNetworkTypeEx
+    var isCAActive = false;
+    if (status) {
+      var networkTypeEx = status.CurrentNetworkTypeEx;
+      isCAActive = networkTypeEx === "1011" || networkTypeEx === 1011;
+    }
+
+    // If we have explicit SCell bands, add them
+    if (scellBands.length > 0) {
+      for (var j = 0; j < scellBands.length; j++) {
+        bands.push(getBandInfo(scellBands[j]));
+      }
+    }
+    // If CA is active but no explicit SCell, try to infer from configured LTEBand
+    else if (isCAActive && netMode && netMode.LTEBand && pcellBandNum) {
+      var configuredBands = decodeLTEBandNumbers(netMode.LTEBand);
+      // Filter out the PCell band to get potential SCell bands
+      var potentialScells = [];
+      for (var k = 0; k < configuredBands.length; k++) {
+        if (configuredBands[k] !== pcellBandNum) {
+          potentialScells.push(configuredBands[k]);
+        }
+      }
+
+      if (potentialScells.length === 1) {
+        // Exactly 1 other band configured - confident this is the SCell
+        bands.push(getBandInfo(potentialScells[0]));
+      }
+      // If multiple potential SCells, we can't determine which one is active
+      // Will fall through to show "(CA Active)" indicator
+    }
+
+    // Build output string
+    if (bands.length === 0) return "--";
+
+    var result = bands.join(" + ");
+
+    // Add CA indicator
+    if (bands.length > 1) {
+      // Multiple bands confirmed - show (CA)
+      result += " (CA)";
+    } else if (isCAActive) {
+      // CA is active but we couldn't determine SCell - show (CA Active)
+      result += " (CA Active)";
+    }
+
+    return result;
+  }
+
+  // Decode LTEBand hex bitmask to array of band NUMBERS
+  // Used for CA inference: returns [3, 40] for bands 3 and 40
+  function decodeLTEBandNumbers(hexStr) {
+    if (!hexStr) return [];
+
+    try {
+      // Handle both hex string and decimal number
+      var bitmask;
+      if (typeof hexStr === "string" && hexStr.match(/^[0-9a-fA-F]+$/)) {
+        bitmask = BigInt("0x" + hexStr);
+      } else {
+        bitmask = BigInt(hexStr);
+      }
+
+      var bands = [];
+      // LTE band bitmask: bit 0 = Band 1, bit 2 = Band 3, etc.
+      var bandMapping = {
+        0: 1,
+        1: 2,
+        2: 3,
+        3: 4,
+        4: 5,
+        6: 7,
+        7: 8,
+        11: 12,
+        12: 13,
+        16: 17,
+        19: 20,
+        24: 25,
+        25: 26,
+        27: 28,
+        37: 38,
+        38: 39,
+        39: 40,
+        40: 41,
+        41: 42,
+        42: 43,
+      };
+
+      for (var bitPos in bandMapping) {
+        if (bandMapping.hasOwnProperty(bitPos)) {
+          if ((bitmask >> BigInt(bitPos)) & BigInt(1)) {
+            bands.push(bandMapping[bitPos]);
+          }
+        }
+      }
+
+      return bands;
+    } catch (e) {
+      // BigInt not supported or parse error
+      return [];
+    }
+  }
+
+  // Check if carrier aggregation is active
+  // Primary method: Check CurrentNetworkTypeEx === "1011"
+  // Fallback: Check for Secondary Cell Band (Scell) in signal data
+  function hasCarrierAggregation(signal, status) {
+    // Primary detection: CurrentNetworkTypeEx === "1011" indicates LTE-A (CA active)
+    if (status) {
+      var networkTypeEx = status.CurrentNetworkTypeEx;
+      if (networkTypeEx === "1011" || networkTypeEx === 1011) {
+        return true;
+      }
+    }
+
+    // Fallback: Check for Secondary Cell Band (Scell) in signal data
+    var scaBands = signal.lte_ca_scell_band || signal.ScellBand || "";
+    var pcellBand = signal.lte_ca_pcell_band || signal.PcellBand;
+
+    // If we have Scell bands (and they are not '0' or empty), CA is active
+    if (scaBands && scaBands !== "0" && scaBands !== "") return true;
+
+    // Explicit check for pcell + scell combination if not caught above
+    if (pcellBand && scaBands && scaBands !== "0") return true;
+
+    // Check for lteca_band string containing '+'
+    var lteCaBand = signal.lteca_band || signal.LteCaBand;
+    if (lteCaBand && lteCaBand.toString().indexOf("+") !== -1) return true;
+
+    return false;
+  }
+
+  // Format duration as HH:MM:SS
+  function formatDurationHMS(seconds) {
+    if (!seconds) return "--";
+    seconds = parseInt(seconds);
+    var hours = Math.floor(seconds / 3600);
+    var mins = Math.floor((seconds % 3600) / 60);
+    var secs = seconds % 60;
+    return (
+      String(hours).padStart(2, "0") +
+      ":" +
+      String(mins).padStart(2, "0") +
+      ":" +
+      String(secs).padStart(2, "0")
+    );
+  }
+
+  // Format bandwidth with download/upload - always show D:XXMHz | U:XXMHz format
+  function formatBandwidthDU(dlBw, ulBw) {
+    var dl = formatBandwidth(dlBw);
+    var ul = formatBandwidth(ulBw);
+    if (dl === "--" && ul === "--") return "--";
+    // Use dl for ul if ul is not available, and vice versa
+    if (ul === "--") ul = dl;
+    if (dl === "--") dl = ul;
+    return (
+      "D:" + dl.replace(" MHz", "MHz") + " | U:" + ul.replace(" MHz", "MHz")
+    );
+  }
+
+  function calculateEnbId(cellId) {
+    if (!cellId || cellId === "--") return "--";
+    var id = parseInt(cellId);
+    return isNaN(id) ? "--" : Math.floor(id / 256).toString();
+  }
+
+  function escapeHtml(text) {
+    if (!text) return "--";
+    var div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function updateConnectionStatus(connected, text) {
+    var dot = document.querySelector("#connection-status .hm-status-dot");
+    var textEl = document.getElementById("connection-text");
+    if (connected === "loading") {
+      dot.className = "hm-status-dot loading";
+      textEl.innerText = text || "Loading...";
+    } else {
+      dot.className =
+        "hm-status-dot " + (connected ? "connected" : "disconnected");
+      textEl.innerText = text || (connected ? "Connected" : "Disconnected");
+    }
+  }
+
+  function loadDevices() {
+    fetchJSON(apiBase + "/devices", function (err, data) {
+      var select = document.getElementById("device-select");
+      if (err || !data || !data.devices || data.devices.length === 0) {
+        showNoDevice();
+        return;
+      }
+      select.innerHTML = "";
+      data.devices.forEach(function (device) {
+        var option = document.createElement("option");
+        option.value = device.id;
+        option.text = device.name;
+        select.appendChild(option);
+      });
+      
+      // Try to select default device from localStorage, fallback to first device
+      var defaultDevice = localStorage.getItem('hm_default_device');
+      var found = false;
+      if (defaultDevice) {
+        for (var i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === defaultDevice) {
+            select.value = defaultDevice;
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found && data.devices.length > 0) {
+        select.value = data.devices[0].id;
+      }
+      
+      currentDevice = select.value;
+      loadDeviceData();
+    });
+  }
+
+  function setDefaultDevice() {
+    var select = document.getElementById("device-select");
+    var deviceId = select.value;
+    var deviceName = select.options[select.selectedIndex].text;
+    localStorage.setItem('hm_default_device', deviceId);
+    alert('Default device set to: ' + deviceName + '\n\nThis device will be auto-selected when you open Dashboard, Network, or SMS pages.');
+  }
+
+  function showNoDevice() {
+    document.getElementById("dashboard-content").innerHTML =
+      '<div class="hm-no-device"><div class="hm-no-device-icon">📱</div>' +
+      '<div class="hm-no-device-text">No devices configured</div>' +
+      '<a href="' +
+      configPageUrl +
+      '">Add a device</a></div>';
+    updateConnectionStatus(false, "No devices");
+  }
+
+  function loadDeviceData(silent) {
+    currentDevice = document.getElementById("device-select").value;
+    if (!currentDevice) {
+      showNoDevice();
+      return;
+    }
+    if (isLoading) return;
+    isLoading = true;
+    
+    // Only show loading status on initial load, not during silent auto-refresh
+    if (!silent) {
+      document.getElementById("refresh-btn").disabled = true;
+      updateConnectionStatus("loading", "Loading...");
+    }
+
+    fetchJSON(
+      apiBase + "/modem/info?device=" + encodeURIComponent(currentDevice),
+      function (err, result) {
+        isLoading = false;
+        if (!silent) {
+          document.getElementById("refresh-btn").disabled = false;
+        }
+        if (err || !result || !result.success) {
+          updateConnectionStatus(
+            false,
+            result ? result.error : "Connection failed"
+          );
+          if (!silent) {
+            showError(result ? result.error : "Failed to connect to modem");
+          }
+          return;
+        }
+        updateConnectionStatus(true, "Connected");
+        renderDashboard(result.data);
+      }
+    );
+  }
+
+  function refreshData() {
+    loadDeviceData(false);
+  }
+
+  function showError(message) {
+    document.getElementById("dashboard-content").innerHTML =
+      '<div class="hm-no-device"><div class="hm-no-device-icon">⚠️</div>' +
+      '<div class="hm-no-device-text">' +
+      escapeHtml(message) +
+      "</div>" +
+      '<button onclick="loadDeviceData()" class="hm-refresh-btn">Try Again</button></div>';
+  }
+
+  function renderDashboard(data) {
+    var signal = data.signal || {};
+    var traffic = data.traffic || {};
+    var device = data.device || {};
+    var status = data.status || {};
+    var plmn = data.plmn || {};
+    var monthStats = data.month_stats || {};
+    var dialup = data.dialup || {};
+    var network = data.network || {};
+    var netMode = data.net_mode || {};
+
+    var html = '<div class="hm-cards-row">';
+    html += buildSignalCard(signal, plmn);
+    html += buildDataUsageCard(traffic, monthStats);
+    html += buildQuickActionsCard();
+    html += "</div>";
+    html +=
+      '<div class="hm-card-full mt-20">' +
+      buildDeviceInfoCard(device) +
+      "</div>";
+    html += '<div class="hm-cards-row mt-20">';
+    html += buildCellInfoCard(signal, plmn, status, netMode);
+    html += buildConnectionCard(
+      status,
+      dialup,
+      traffic,
+      network,
+      signal,
+      device
+    );
+    html += buildMonthlyUsageCard(monthStats);
+    html += "</div>";
+
+    document.getElementById("dashboard-content").innerHTML = html;
+  }
+
+  function buildSignalCard(signal, plmn) {
+    var rsrp = signal.rsrp || signal.RSRP || "--";
+    var rsrpValue = rsrp.toString().replace(/[^0-9-]/g, "");
+    var signalInfo = getSignalStrength(rsrpValue);
+    var barsHtml = "";
+    for (var i = 1; i <= 5; i++) {
+      barsHtml +=
+        '<div class="hm-signal-bar ' +
+        (i <= signalInfo.bars ? "active" : "") +
+        '"></div>';
+    }
+    var rssi = signal.rssi || signal.RSSI || "--";
+    var sinr = signal.sinr || signal.SINR || "--";
+    var rsrq = signal.rsrq || signal.RSRQ || "--";
+    var band = signal.band || signal.Band || "--";
+    var bandShort = parseBandName(band);
+
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon signal">📶</div><div>' +
+      '<div class="hm-card-title">Signal Strength</div>' +
+      '<div class="hm-card-subtitle">' +
+      escapeHtml(plmn.FullName || plmn.ShortName || "Unknown") +
+      "</div></div></div>" +
+      '<div class="hm-signal-hero">' +
+      '<div class="hm-signal-value ' +
+      signalInfo.class +
+      '">' +
+      escapeHtml(rsrp) +
+      "</div>" +
+      '<div class="hm-signal-unit">RSRP</div>' +
+      '<div class="hm-signal-bars">' +
+      barsHtml +
+      "</div></div>" +
+      '<div class="hm-signal-metrics">' +
+      '<div class="hm-metric-item"><div class="hm-metric-value">' +
+      escapeHtml(rssi) +
+      '</div><div class="hm-metric-label">RSSI</div></div>' +
+      '<div class="hm-metric-item"><div class="hm-metric-value highlight">' +
+      escapeHtml(sinr) +
+      '</div><div class="hm-metric-label">SINR</div></div>' +
+      '<div class="hm-metric-item"><div class="hm-metric-value">' +
+      escapeHtml(rsrq) +
+      '</div><div class="hm-metric-label">RSRQ</div></div>' +
+      '<div class="hm-metric-item"><div class="hm-metric-value">' +
+      escapeHtml(bandShort) +
+      '</div><div class="hm-metric-label">BAND</div></div>' +
+      "</div></div>"
+    );
+  }
+
+  function buildDataUsageCard(traffic, monthStats) {
+    var totalDownload = parseInt(
+      monthStats.CurrentMonthDownload || traffic.TotalDownload || 0
+    );
+    var totalUpload = parseInt(
+      monthStats.CurrentMonthUpload || traffic.TotalUpload || 0
+    );
+    var totalUsage = totalDownload + totalUpload;
+    var dlRate = traffic.CurrentDownloadRate || 0;
+    var ulRate = traffic.CurrentUploadRate || 0;
+
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon data">📊</div><div>' +
+      '<div class="hm-card-title">Data Usage</div>' +
+      '<div class="hm-card-subtitle">Monthly Statistics</div></div></div>' +
+      '<div class="hm-data-hero">' +
+      '<div class="hm-data-value">' +
+      formatBytes(totalUsage) +
+      "</div>" +
+      '<div class="hm-data-label">Total Usage</div></div>' +
+      '<div class="hm-speed-row">' +
+      '<div class="hm-speed-item"><div class="hm-speed-value download">↓ ' +
+      formatSpeed(dlRate) +
+      '</div><div class="hm-speed-label">Download</div></div>' +
+      '<div class="hm-speed-item"><div class="hm-speed-value upload">↑ ' +
+      formatSpeed(ulRate) +
+      '</div><div class="hm-speed-label">Upload</div></div>' +
+      "</div></div>"
+    );
+  }
+
+  function buildQuickActionsCard() {
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon actions">⚡</div><div>' +
+      '<div class="hm-card-title">Quick Actions</div>' +
+      '<div class="hm-card-subtitle">Modem Control</div></div></div>' +
+      '<div class="hm-actions-container">' +
+      '<button class="hm-action-btn reboot" onclick="rebootModem()">🔄 Reboot</button>' +
+      '<button class="hm-action-btn config" onclick="goToConfig(\'general\')">⚙️ Config</button>' +
+      '<button class="hm-action-btn ipagent" onclick="goToConfig(\'ipagent\')">🎯 IP Agent</button>' +
+      '<button class="hm-action-btn telegram" onclick="goToConfig(\'telegram\')">📲 Telegram</button>' +
+      '<button class="hm-action-btn band" onclick="openBandSelection()">📡 Band Selection</button>' +
+      '<button class="hm-action-btn apn" onclick="goToNetwork(\'apn\')">🌐 APN</button>' +
+      "</div></div>"
+    );
+  }
+
+  function buildDeviceInfoCard(device) {
+    var name = device.DeviceName || "Unknown";
+    var imei = device.Imei || device.IMEI || "--";
+    var sw = device.SoftwareVersion || "--";
+    var webui = device.WebUIVersion || "--";
+    var mac = device.MacAddress1 || device.MacAddress || "--";
+
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon device">🌐</div><div>' +
+      '<div class="hm-card-title">Device Information</div>' +
+      '<div class="hm-card-subtitle">' +
+      escapeHtml(name) +
+      "</div></div></div>" +
+      '<div class="hm-device-grid">' +
+      '<div class="hm-device-item"><div class="hm-device-item-value">' +
+      escapeHtml(name) +
+      '</div><div class="hm-device-item-label">Device</div></div>' +
+      '<div class="hm-device-item"><div class="hm-device-item-value">' +
+      escapeHtml(imei) +
+      '</div><div class="hm-device-item-label">IMEI</div></div>' +
+      '<div class="hm-device-item"><div class="hm-device-item-value">' +
+      escapeHtml(sw) +
+      '</div><div class="hm-device-item-label">Software</div></div>' +
+      '<div class="hm-device-item"><div class="hm-device-item-value">' +
+      escapeHtml(webui) +
+      '</div><div class="hm-device-item-label">WebUI</div></div>' +
+      '<div class="hm-device-item"><div class="hm-device-item-value">' +
+      escapeHtml(mac) +
+      '</div><div class="hm-device-item-label">MAC</div></div>' +
+      "</div></div>"
+    );
+  }
+
+  function buildCellInfoCard(signal, plmn, status, netMode) {
+    var operator = plmn.FullName || plmn.ShortName || "--";
+    var numeric = plmn.Numeric || "";
+    if (numeric) operator += " (" + numeric + ")";
+    var cellId = signal.cell_id || signal.Cell_Id || signal.CellID || "--";
+    var enbId = calculateEnbId(cellId);
+
+    // Format connected band with CA support
+    // Pass status for CA detection and netMode for band inference
+    var connectedBand = formatConnectedBand(signal, status, netMode);
+
+    var dlBw = signal.dlbandwidth || signal.DlBandwidth;
+    var ulBw = signal.ulbandwidth || signal.UlBandwidth || dlBw;
+    var bw = formatBandwidthDU(dlBw, ulBw);
+
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon cell">📡</div><div>' +
+      '<div class="hm-card-title">Cell Information</div>' +
+      '<div class="hm-card-subtitle">Network Details</div></div></div>' +
+      '<div class="hm-info-table">' +
+      '<div class="hm-info-row"><span class="hm-info-label">Operator</span><span class="hm-info-value">' +
+      escapeHtml(operator) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Cell ID</span><span class="hm-info-value">' +
+      escapeHtml(cellId) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">eNB ID</span><span class="hm-info-value">' +
+      escapeHtml(enbId) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Connected Band</span><span class="hm-info-value">' +
+      escapeHtml(connectedBand) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Bandwidth</span><span class="hm-info-value">' +
+      escapeHtml(bw) +
+      "</span></div>" +
+      "</div></div>"
+    );
+  }
+
+  function buildConnectionCard(
+    status,
+    dialup,
+    traffic,
+    network,
+    signal,
+    device
+  ) {
+    // WAN IP: Check device object first (as per reference app), then status, then dialup
+    // Reference: device.WanIPAddress is the primary source
+    var wanIp = "--";
+    if (device && device.WanIPAddress) {
+      wanIp = device.WanIPAddress;
+    } else if (status && status.WanIPAddress) {
+      wanIp = status.WanIPAddress;
+    } else if (status && status.ExternalIPAddress) {
+      wanIp = status.ExternalIPAddress;
+    } else if (dialup && dialup.WanIPAddress) {
+      wanIp = dialup.WanIPAddress;
+    } else if (dialup && dialup.ExternalIPAddress) {
+      wanIp = dialup.ExternalIPAddress;
+    }
+
+    // Network Mode: Use CurrentNetworkTypeEx for LTE-A detection
+    // Reference: CurrentNetworkTypeEx === "1011" means LTE-A (CA active)
+    var networkType = status.CurrentNetworkType || network.CurrentNetworkType;
+    var networkTypeEx = status.CurrentNetworkTypeEx;
+    var mode = getNetworkModeDisplay(networkType, networkTypeEx);
+
+    // Check multiple possible fields for DNS
+    // Also check device.wan_dns_address which may contain comma-separated DNS
+    var dns1 = "--";
+    var dns2 = "--";
+
+    // Try device.wan_dns_address first (comma-separated format)
+    if (device && device.wan_dns_address) {
+      var dnsAddresses = device.wan_dns_address.split(",");
+      if (dnsAddresses[0]) dns1 = dnsAddresses[0].trim();
+      if (dnsAddresses[1]) dns2 = dnsAddresses[1].trim();
+    }
+
+    // Fallback to status/dialup fields
+    if (dns1 === "--") {
+      dns1 =
+        status.PrimaryDns ||
+        status.dns_primary ||
+        dialup.PrimaryDns ||
+        dialup.dns_primary ||
+        "--";
+    }
+    if (dns2 === "--") {
+      dns2 =
+        status.SecondaryDns ||
+        status.dns_secondary ||
+        dialup.SecondaryDns ||
+        dialup.dns_secondary ||
+        "--";
+    }
+
+    var duration = formatDurationHMS(
+      traffic.CurrentConnectTime || traffic.TotalConnectTime
+    );
+
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon connection">🔗</div><div>' +
+      '<div class="hm-card-title">Connection</div>' +
+      '<div class="hm-card-subtitle">Network Status</div></div></div>' +
+      '<div class="hm-info-table">' +
+      '<div class="hm-info-row"><span class="hm-info-label">WAN IP</span><span class="hm-info-value">' +
+      escapeHtml(wanIp) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Network Mode</span><span class="hm-info-value">' +
+      escapeHtml(mode) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">DNS Primary</span><span class="hm-info-value">' +
+      escapeHtml(dns1) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">DNS Secondary</span><span class="hm-info-value">' +
+      escapeHtml(dns2) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Session Duration</span><span class="hm-info-value">' +
+      escapeHtml(duration) +
+      "</span></div>" +
+      "</div></div>"
+    );
+  }
+
+  function buildMonthlyUsageCard(monthStats) {
+    var dl = parseInt(monthStats.CurrentMonthDownload || 0);
+    var ul = parseInt(monthStats.CurrentMonthUpload || 0);
+    var total = dl + ul;
+    var days = formatConnectionDays(monthStats.MonthDuration);
+
+    return (
+      '<div class="hm-card">' +
+      '<div class="hm-card-header"><div class="hm-card-icon monthly">📈</div><div>' +
+      '<div class="hm-card-title">Monthly Usage</div>' +
+      '<div class="hm-card-subtitle">This Month</div></div></div>' +
+      '<div class="hm-info-table">' +
+      '<div class="hm-info-row"><span class="hm-info-label">Total Download</span><span class="hm-info-value">' +
+      formatBytes(dl) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Total Upload</span><span class="hm-info-value">' +
+      formatBytes(ul) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Total Traffic</span><span class="hm-info-value">' +
+      formatBytes(total) +
+      "</span></div>" +
+      '<div class="hm-info-row"><span class="hm-info-label">Connection Days</span><span class="hm-info-value">' +
+      escapeHtml(days) +
+      "</span></div>" +
+      "</div></div>"
+    );
+  }
+
+  function rebootModem() {
+    if (
+      !confirm(
+        "Reboot the modem? This will disconnect all devices temporarily."
+      )
+    )
+      return;
+    var btn = document.querySelector(".hm-action-btn.reboot");
+    if (btn) btn.disabled = true;
+    fetchJSON(
+      apiBase + "/modem/reboot?device=" + encodeURIComponent(currentDevice),
+      function (err, result) {
+        if (btn) btn.disabled = false;
+        if (result && result.success) {
+          alert("Modem is rebooting. Please wait 1-2 minutes.");
+          updateConnectionStatus(false, "Rebooting...");
+        } else {
+          alert("Failed: " + (result ? result.error : "Unknown error"));
+        }
+      }
+    );
+  }
+
+  function toggleMobileData() {
+    var btn = document.querySelector(".hm-action-btn.toggle");
+    if (btn) btn.disabled = true;
+    fetchJSON(
+      apiBase +
+        "/modem/toggle_data?device=" +
+        encodeURIComponent(currentDevice),
+      function (err, result) {
+        if (btn) btn.disabled = false;
+        if (result && result.success) {
+          alert("Mobile data toggled.");
+          setTimeout(refreshData, 2000);
+        } else {
+          alert("Failed: " + (result ? result.error : "Unknown error"));
+        }
+      }
+    );
+  }
+
+  function openBandSelection() {
+    window.location.href = networkPageUrl + '?tab=bands';
+  }
+
+  function goToConfig(tab) {
+    // Navigate to config page with specific tab
+    // tab can be: general, ipagent, telegram
+    window.location.href = configPageUrl + (tab ? '#' + tab : '');
+  }
+
+  function goToNetwork(section) {
+    // Navigate to network page with specific section
+    // section can be: apn, bands
+    window.location.href = networkPageUrl + (section ? '?tab=' + section : '');
+  }
+
+  // Initialize
+  loadDevices();
+
+  // Auto-refresh every 5 seconds (silent mode - no loading indicator)
+  refreshInterval = setInterval(function () {
+    if (currentDevice && !isLoading) loadDeviceData(true);
+  }, 5000);
+
+  // Cleanup
+  window.addEventListener("beforeunload", function () {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+    }
+  });
+  //]]>
+</script>

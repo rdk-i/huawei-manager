@@ -1,0 +1,280 @@
+<style>
+    .hm-nav {
+        display: flex;
+        background: #333;
+        border-radius: 8px 8px 0 0;
+        overflow: hidden;
+        margin-bottom: 0;
+        border-bottom: 2px solid #4caf50;
+        flex-wrap: wrap;
+    }
+    .hm-nav-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        color: #aaa;
+        font-weight: bold;
+        transition: all 0.3s;
+        border-right: 1px solid #444;
+        text-decoration: none !important;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .hm-nav-item:hover {
+        background: #444;
+        color: #fff;
+    }
+    .hm-nav-item.active {
+        background: #4caf50;
+        color: #fff;
+    }
+
+    /* Support Development Popup Styles */
+    .hm-support-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    .hm-support-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .hm-support-popup {
+        background: linear-gradient(145deg, #222, #2a2a2a);
+        border-radius: 12px;
+        padding: 25px;
+        border: 1px solid #333;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        max-width: 360px;
+        width: 90%;
+        text-align: center;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+    }
+    .hm-support-overlay.active .hm-support-popup {
+        transform: scale(1);
+    }
+    .hm-support-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+    .hm-support-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 10px;
+    }
+    .hm-support-text {
+        color: #aaa;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    .hm-support-qr {
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    .hm-support-qr img {
+        width: 180px;
+        height: 180px;
+        display: block;
+    }
+    .hm-support-qr-text {
+        color: #888;
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+    }
+    .hm-support-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #888;
+        font-size: 0.85rem;
+    }
+    .hm-support-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #4caf50;
+        cursor: pointer;
+    }
+    .hm-support-checkbox label {
+        cursor: pointer;
+    }
+    .hm-support-close {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+    .hm-support-close:hover {
+        background: linear-gradient(135deg, #388e3c, #2e7d32);
+        transform: translateY(-1px);
+    }
+
+    /* Responsive styles for mobile devices */
+    @media screen and (max-width: 480px) {
+        .hm-support-popup {
+            max-width: 95%;
+            padding: 20px 15px;
+            margin: 10px;
+        }
+        .hm-support-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .hm-support-title {
+            font-size: 1.2rem;
+        }
+        .hm-support-text {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .hm-support-qr {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .hm-support-qr img {
+            width: 150px;
+            height: 150px;
+            max-width: 100%;
+            height: auto;
+        }
+        .hm-support-qr-text {
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+        }
+        .hm-support-checkbox {
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+        .hm-support-close {
+            padding: 10px 25px;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media screen and (max-width: 320px) {
+        .hm-support-qr img {
+            width: 120px;
+            height: 120px;
+        }
+    }
+</style>
+
+<div class="hm-nav" id="hm-nav">
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/dashboard')%>" class="hm-nav-item" id="nav-dashboard">📊 Dashboard</a>
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/ipagent')%>" class="hm-nav-item" id="nav-ipagent">🎯 IP Agent</a>
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/network')%>" class="hm-nav-item" id="nav-network">⚙️ Network</a>
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/sms')%>" class="hm-nav-item" id="nav-sms">💬 SMS</a>
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/config')%>" class="hm-nav-item" id="nav-config">🔧 Config</a>
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/logs')%>" class="hm-nav-item" id="nav-logs">📝 Logs</a>
+    <a href="<%=luci.dispatcher.build_url('admin/modem/huawei-manager/about')%>" class="hm-nav-item" id="nav-about">ℹ️ About</a>
+</div>
+
+<!-- Support Development Popup HTML -->
+<div id="hm-support-overlay" class="hm-support-overlay">
+    <div class="hm-support-popup">
+        <div class="hm-support-title">☕ Support Development</div>
+        <div class="hm-support-text">If you find this tool useful, consider buying me a coffee!</div>
+        <div class="hm-support-qr">
+            <img src="https://thumbs.dreamstime.com/b/qr-code-template-abstract-info-coding-mockup-isolated-white-background-qr-code-template-abstract-info-coding-mockup-289395715.jpg" alt="QR Code" />
+        </div>
+        <div class="hm-support-qr-text">Scan with your mobile app</div>
+        <div class="hm-support-checkbox">
+            <input type="checkbox" id="hm-support-hide" />
+            <label for="hm-support-hide">Jangan lihat lagi untuk hari ini</label>
+        </div>
+        <button class="hm-support-close" onclick="hmCloseSupportPopup()">Close</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var path = window.location.pathname;
+    var navId = null;
+    if (path.indexOf('dashboard') !== -1 || path.endsWith('huawei-manager') || path.endsWith('huawei-manager/')) {
+        navId = 'nav-dashboard';
+    } else if (path.indexOf('ipagent') !== -1) {
+        navId = 'nav-ipagent';
+    } else if (path.indexOf('network') !== -1) {
+        navId = 'nav-network';
+    } else if (path.indexOf('/sms') !== -1) {
+        navId = 'nav-sms';
+    } else if (path.indexOf('config') !== -1) {
+        navId = 'nav-config';
+    } else if (path.indexOf('logs') !== -1) {
+        navId = 'nav-logs';
+    } else if (path.indexOf('about') !== -1) {
+        navId = 'nav-about';
+    }
+    if (navId) {
+        document.getElementById(navId).classList.add('active');
+    }
+
+    // Support Development Popup Logic
+    (function() {
+        var STORAGE_KEY = 'hm_support_popup_hidden_until';
+        
+        function shouldShowPopup() {
+            var hiddenUntil = localStorage.getItem(STORAGE_KEY);
+            if (!hiddenUntil) return true;
+            var hiddenDate = parseInt(hiddenUntil, 10);
+            return Date.now() > hiddenDate;
+        }
+        
+        function showPopup() {
+            var overlay = document.getElementById('hm-support-overlay');
+            if (overlay) {
+                overlay.classList.add('active');
+            }
+        }
+        
+        window.hmCloseSupportPopup = function() {
+            var overlay = document.getElementById('hm-support-overlay');
+            var checkbox = document.getElementById('hm-support-hide');
+            
+            if (checkbox && checkbox.checked) {
+                // Hide for 24 hours
+                var hideUntil = Date.now() + (24 * 60 * 60 * 1000);
+                localStorage.setItem(STORAGE_KEY, hideUntil.toString());
+            }
+            
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        };
+        
+        // Close popup when clicking outside
+        document.getElementById('hm-support-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hmCloseSupportPopup();
+            }
+        });
+        
+        // Show popup on page load if not hidden
+        if (shouldShowPopup()) {
+            // Small delay to allow page to render first
+            setTimeout(showPopup, 500);
+        }
+    })();
+</script>
+

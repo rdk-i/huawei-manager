@@ -1,0 +1,1350 @@
+<%# Huawei Manager - SMS Management View %>
+<%# Full SMS functionality with mark as read and bulk select %>
+
+<style type="text/css">
+.hm-sms {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.hm-sms-header {
+    background: linear-gradient(145deg, #1a1a1a, #222);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.hm-sms-header label {
+    color: #aaa;
+    font-weight: 500;
+}
+
+.hm-sms-header select {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+/* Cards */
+.hm-sms-card {
+    background: linear-gradient(145deg, #222, #2a2a2a);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #333;
+}
+
+.hm-sms-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Stats Bar */
+.hm-sms-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.hm-sms-stat {
+    background: #1a1a1a;
+    padding: 10px 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hm-sms-stat-label {
+    color: #888;
+}
+
+.hm-sms-stat-value {
+    font-weight: bold;
+}
+
+.hm-sms-stat-value.unread {
+    color: #4CAF50;
+}
+
+.hm-sms-stat-value.total {
+    color: #2196f3;
+}
+
+/* Filter Buttons */
+.hm-sms-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hm-filter-btn {
+    background: #333;
+    color: #aaa;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.hm-filter-btn:hover {
+    background: #444;
+    color: #fff;
+}
+
+.hm-filter-btn.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: #fff;
+    border-color: #4CAF50;
+}
+
+/* Bulk Actions */
+.hm-bulk-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 15px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.hm-bulk-actions.hidden {
+    display: none;
+}
+
+.hm-bulk-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.hm-bulk-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4CAF50;
+}
+
+.hm-bulk-count {
+    color: #4CAF50;
+    font-weight: 500;
+    margin-left: 10px;
+}
+
+.hm-bulk-btn {
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.hm-bulk-btn-read {
+    background: #2196f3;
+    color: #fff;
+}
+
+.hm-bulk-btn-read:hover {
+    background: #1976d2;
+}
+
+.hm-bulk-btn-delete {
+    background: #f44336;
+    color: #fff;
+}
+
+.hm-bulk-btn-delete:hover {
+    background: #d32f2f;
+}
+
+/* SMS List */
+.hm-sms-inbox {
+    max-height: 500px;
+    overflow-y: auto;
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.hm-sms-item {
+    background: #222;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-left: 3px solid #444;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.hm-sms-item:hover {
+    background: #2a2a2a;
+    border-left-color: #4CAF50;
+}
+
+.hm-sms-item.unread {
+    background: #2a3a2a;
+    border-left-color: #4CAF50;
+}
+
+.hm-sms-item.selected {
+    background: rgba(33, 150, 243, 0.2);
+    border-left-color: #2196f3;
+}
+
+.hm-sms-checkbox {
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.hm-sms-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4CAF50;
+}
+
+.hm-sms-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.hm-sms-header-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hm-sms-sender {
+    color: #fff;
+    font-weight: 500;
+}
+
+.hm-sms-date {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.hm-sms-preview {
+    color: #ccc;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hm-sms-unread-badge {
+    background: #4CAF50;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+/* Send SMS Form */
+.hm-form-group {
+    margin-bottom: 15px;
+}
+
+.hm-form-label {
+    display: block;
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+
+.hm-form-input, .hm-form-textarea {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+}
+
+.hm-form-input:focus, .hm-form-textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.hm-form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Buttons */
+.hm-btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.hm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.hm-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.hm-btn-secondary {
+    background: #333;
+    border: 1px solid #444;
+}
+
+.hm-btn-secondary:hover {
+    background: #444;
+    box-shadow: none;
+}
+
+.hm-btn-danger {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.hm-btn-danger:hover {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Modal */
+.hm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.hm-modal-overlay.active {
+    display: flex;
+}
+
+.hm-modal {
+    background: #222;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid #333;
+}
+
+.hm-modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hm-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.hm-modal-close {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.hm-modal-close:hover {
+    color: #fff;
+}
+
+.hm-modal-body {
+    padding: 20px;
+}
+
+.hm-modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #333;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.hm-sms-full-content {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 15px;
+    color: #ccc;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    margin-top: 15px;
+}
+
+.hm-sms-modal-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hm-sms-modal-sender {
+    color: #4CAF50;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.hm-sms-modal-date {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Loading Overlay */
+.hm-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+.hm-loading-overlay.active {
+    display: flex;
+}
+
+.hm-loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #333;
+    border-top-color: #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Toast Notifications */
+.hm-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.hm-toast {
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    border: 1px solid #333;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 420px;
+    pointer-events: auto;
+    animation: hm-toast-slide-in 0.3s ease;
+    border-left: 4px solid #4CAF50;
+}
+
+.hm-toast.success { border-left-color: #4CAF50; }
+.hm-toast.error { border-left-color: #f44336; }
+.hm-toast.warning { border-left-color: #ff9800; }
+.hm-toast.info { border-left-color: #2196f3; }
+
+.hm-toast-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.hm-toast.success .hm-toast-icon { color: #4CAF50; background: rgba(76, 175, 80, 0.15); }
+.hm-toast.error .hm-toast-icon { color: #f44336; background: rgba(244, 67, 54, 0.15); }
+.hm-toast.warning .hm-toast-icon { color: #ff9800; background: rgba(255, 152, 0, 0.15); }
+.hm-toast.info .hm-toast-icon { color: #2196f3; background: rgba(33, 150, 243, 0.15); }
+
+.hm-toast-message {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #e0e0e0;
+}
+
+.hm-toast-close {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.hm-toast-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.hm-toast.hiding {
+    animation: hm-toast-slide-out 0.3s ease forwards;
+}
+
+@keyframes hm-toast-slide-in {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes hm-toast-slide-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+}
+
+/* Confirm Dialog */
+.hm-confirm-dialog {
+    text-align: center;
+}
+
+.hm-confirm-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.hm-confirm-icon.warning {
+    color: #ff9800;
+}
+
+.hm-confirm-icon.danger {
+    color: #f44336;
+}
+
+.hm-confirm-message {
+    color: #ccc;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.hm-confirm-count {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* Empty State */
+.hm-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+}
+
+.hm-empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .hm-sms-stats {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .hm-bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .hm-sms-item {
+        flex-direction: column;
+    }
+    
+    .hm-sms-checkbox {
+        order: -1;
+    }
+}
+</style>
+
+<div class="hm-sms">
+    <!-- Device Selector -->
+    <div class="hm-sms-header">
+        <label for="device-select">📱 Select Device:</label>
+        <select id="device-select" onchange="onDeviceChange()">
+            <option value="">Loading devices...</option>
+        </select>
+    </div>
+    
+    <!-- SMS Inbox Card -->
+    <div class="hm-sms-card">
+        <div class="hm-sms-card-title">📥 SMS Inbox</div>
+        
+        <!-- Stats & Filters -->
+        <div class="hm-sms-stats">
+            <div class="hm-sms-stat">
+                <span class="hm-sms-stat-label">Unread:</span>
+                <span id="sms-unread" class="hm-sms-stat-value unread">0</span>
+            </div>
+            <div class="hm-sms-stat">
+                <span class="hm-sms-stat-label">Total:</span>
+                <span id="sms-total" class="hm-sms-stat-value total">0</span>
+            </div>
+            
+            <div class="hm-sms-filters">
+                <button class="hm-filter-btn active" onclick="filterSms('all')" data-filter="all">All</button>
+                <button class="hm-filter-btn" onclick="filterSms('unread')" data-filter="unread">Unread</button>
+            </div>
+            
+            <button onclick="loadSmsInbox()" class="hm-btn hm-btn-secondary" style="margin-left: auto;">🔄 Refresh</button>
+        </div>
+        
+        <!-- Bulk Actions Bar -->
+        <div id="bulk-actions" class="hm-bulk-actions hidden">
+            <label class="hm-bulk-checkbox">
+                <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                <span>Select All</span>
+            </label>
+            <span id="selected-count" class="hm-bulk-count">0 selected</span>
+            <button class="hm-bulk-btn hm-bulk-btn-read" onclick="bulkMarkAsRead()">✓ Mark as Read</button>
+            <button class="hm-bulk-btn hm-bulk-btn-delete" onclick="confirmBulkDelete()">🗑 Delete Selected</button>
+        </div>
+        
+        <!-- SMS List -->
+        <div id="sms-inbox" class="hm-sms-inbox">
+            <div class="hm-empty-state">
+                <div class="hm-empty-state-icon">📨</div>
+                <div>Loading SMS messages...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Send SMS Card -->
+    <div class="hm-sms-card">
+        <div class="hm-sms-card-title">✉️ Send SMS</div>
+        
+        <div class="hm-form-group">
+            <label class="hm-form-label">Phone Number</label>
+            <input type="text" id="sms-phone" class="hm-form-input" placeholder="+62812345678">
+        </div>
+        <div class="hm-form-group">
+            <label class="hm-form-label">Message</label>
+            <textarea id="sms-message" class="hm-form-textarea" rows="3" placeholder="Enter your message..." oninput="updateCharCount()"></textarea>
+            <div style="color: #888; font-size: 0.8rem; margin-top: 4px;">
+                <span id="char-count">0</span>/160 characters
+            </div>
+        </div>
+        <button onclick="sendSms()" class="hm-btn">📤 Send SMS</button>
+    </div>
+</div>
+
+<!-- Read SMS Modal -->
+<div id="sms-modal" class="hm-modal-overlay">
+    <div class="hm-modal">
+        <div class="hm-modal-header">
+            <span class="hm-modal-title">📧 Message</span>
+            <button class="hm-modal-close" onclick="closeSmsModal()">×</button>
+        </div>
+        <div class="hm-modal-body">
+            <div class="hm-sms-modal-info">
+                <span id="modal-sender" class="hm-sms-modal-sender"></span>
+                <span id="modal-date" class="hm-sms-modal-date"></span>
+            </div>
+            <div id="modal-content" class="hm-sms-full-content"></div>
+        </div>
+        <div class="hm-modal-footer">
+            <button class="hm-btn hm-btn-secondary" onclick="replyToSms()">↩️ Reply</button>
+            <button class="hm-btn hm-btn-danger" onclick="deleteCurrentSms()">🗑 Delete</button>
+            <button class="hm-btn" onclick="closeSmsModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirm-modal" class="hm-modal-overlay">
+    <div class="hm-modal" style="max-width: 400px;">
+        <div class="hm-modal-header">
+            <span class="hm-modal-title">⚠️ Confirm Delete</span>
+            <button class="hm-modal-close" onclick="closeConfirmModal()">×</button>
+        </div>
+        <div class="hm-modal-body">
+            <div class="hm-confirm-dialog">
+                <div class="hm-confirm-icon danger">🗑</div>
+                <div class="hm-confirm-message">
+                    Are you sure you want to delete <span id="delete-count" class="hm-confirm-count">0</span> message(s)?
+                </div>
+                <div style="color: #888; font-size: 0.9rem;">This action cannot be undone.</div>
+            </div>
+        </div>
+        <div class="hm-modal-footer">
+            <button class="hm-btn hm-btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+            <button class="hm-btn hm-btn-danger" onclick="executeBulkDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="hm-loading-overlay">
+    <div class="hm-loading-spinner"></div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="hm-toast-container"></div>
+
+<script type="text/javascript">
+//<![CDATA[
+var currentDevice = null;
+var apiBase = '<%=luci.dispatcher.build_url("admin", "modem", "huawei-manager", "api")%>';
+var currentFilter = 'all';
+var allMessages = [];
+var currentSmsId = null;
+var currentSmsPhone = null;
+var selectedMessages = new Set();
+
+function fetchJSON(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try { callback(null, JSON.parse(xhr.responseText)); }
+                catch(e) { callback(e, null); }
+            } else {
+                callback(new Error('HTTP ' + xhr.status), null);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function postJSON(url, data, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try { callback(null, JSON.parse(xhr.responseText)); }
+                catch(e) { callback(e, null); }
+            } else {
+                callback(new Error('HTTP ' + xhr.status), null);
+            }
+        }
+    };
+    
+    if (data instanceof FormData) {
+        xhr.send(data);
+    } else {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
+    }
+}
+
+function showLoading() {
+    document.getElementById('loading-overlay').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('active');
+}
+
+function showToast(message, type) {
+    type = type || 'success';
+    var container = document.getElementById('toast-container');
+    
+    var toast = document.createElement('div');
+    toast.className = 'hm-toast ' + type;
+    
+    var icon = '';
+    switch(type) {
+        case 'success': icon = '✓'; break;
+        case 'error': icon = '✗'; break;
+        case 'warning': icon = '⚠'; break;
+        case 'info': icon = 'ℹ'; break;
+        default: icon = '✓';
+    }
+    
+    toast.innerHTML =
+        '<span class="hm-toast-icon">' + icon + '</span>' +
+        '<span class="hm-toast-message">' + message + '</span>' +
+        '<button class="hm-toast-close" onclick="closeToast(this)" title="Dismiss">×</button>';
+    
+    container.appendChild(toast);
+    
+    setTimeout(function() {
+        if (toast.parentNode) {
+            toast.classList.add('hiding');
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }
+    }, 4000);
+}
+
+function closeToast(btn) {
+    var toast = btn.parentNode;
+    toast.classList.add('hiding');
+    setTimeout(function() {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 300);
+}
+
+function loadDevices() {
+    fetchJSON(apiBase + '/devices', function(err, data) {
+        var select = document.getElementById('device-select');
+        
+        if (err || !data || !data.devices || data.devices.length === 0) {
+            select.innerHTML = '<option value="">No devices found</option>';
+            return;
+        }
+        
+        select.innerHTML = '';
+        data.devices.forEach(function(device) {
+            var option = document.createElement('option');
+            option.value = device.id;
+            option.text = device.name;
+            select.appendChild(option);
+        });
+        
+        // Try to select default device from localStorage
+        var defaultDevice = localStorage.getItem('hm_default_device');
+        var found = false;
+        if (defaultDevice) {
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === defaultDevice) {
+                    select.value = defaultDevice;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found && data.devices.length > 0) {
+            select.value = data.devices[0].id;
+        }
+        
+        currentDevice = select.value;
+        loadSmsInbox();
+    });
+}
+
+function onDeviceChange() {
+    currentDevice = document.getElementById('device-select').value;
+    loadSmsInbox();
+}
+
+function loadSmsCount() {
+    if (!currentDevice) return;
+
+    fetchJSON(apiBase + '/modem/sms_count?device=' + encodeURIComponent(currentDevice), function(err, result) {
+        if (result && result.success && result.data) {
+            var data = result.data;
+            document.getElementById('sms-unread').innerText = data.LocalUnread || '0';
+            document.getElementById('sms-total').innerText = data.LocalInbox || '0';
+        }
+    });
+}
+
+function loadSmsInbox() {
+    if (!currentDevice) return;
+
+    var inbox = document.getElementById('sms-inbox');
+    inbox.innerHTML = '<div class="hm-empty-state"><div class="hm-empty-state-icon">⏳</div><div>Loading SMS...</div></div>';
+
+    // Clear selection
+    selectedMessages.clear();
+    updateBulkActionsVisibility();
+
+    loadSmsCount();
+
+    fetchJSON(apiBase + '/modem/sms_list?device=' + encodeURIComponent(currentDevice), function(err, result) {
+        if (err || !result || !result.success) {
+            inbox.innerHTML = '<div class="hm-empty-state"><div class="hm-empty-state-icon">❌</div><div style="color: #f44336;">Failed to load SMS: ' + (result ? result.error : 'Unknown error') + '</div></div>';
+            return;
+        }
+        
+        var data = result.data;
+        var messages = data.Messages && data.Messages.Message ? data.Messages.Message : [];
+        
+        if (!Array.isArray(messages)) {
+            messages = messages ? [messages] : [];
+        }
+        
+        allMessages = messages;
+        renderMessages();
+    });
+}
+
+function renderMessages() {
+    var inbox = document.getElementById('sms-inbox');
+    var messages = allMessages;
+    
+    // Apply filter
+    if (currentFilter === 'unread') {
+        messages = messages.filter(function(msg) {
+            return msg.Smstat === '0';
+        });
+    }
+    
+    if (messages.length === 0) {
+        var emptyMsg = currentFilter === 'unread' ? 'No unread messages' : 'No messages in inbox';
+        inbox.innerHTML = '<div class="hm-empty-state"><div class="hm-empty-state-icon">📭</div><div>' + emptyMsg + '</div></div>';
+        return;
+    }
+    
+    var html = '';
+    messages.forEach(function(msg) {
+        var isUnread = msg.Smstat === '0';
+        var isSelected = selectedMessages.has(msg.Index);
+        var classes = 'hm-sms-item';
+        if (isUnread) classes += ' unread';
+        if (isSelected) classes += ' selected';
+        
+        html += '<div class="' + classes + '" data-id="' + msg.Index + '">';
+        html += '<div class="hm-sms-checkbox" onclick="event.stopPropagation();">';
+        html += '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onchange="toggleMessageSelect(\'' + msg.Index + '\', this.checked)">';
+        html += '</div>';
+        html += '<div class="hm-sms-content" onclick="viewSms(\'' + msg.Index + '\', \'' + escapeHtml(msg.Phone || '') + '\', \'' + escapeHtml(msg.Date || '') + '\', \'' + escapeJs(msg.Content || '') + '\', \'' + msg.Smstat + '\')">';
+        html += '<div class="hm-sms-header-row">';
+        html += '<span class="hm-sms-sender">' + escapeHtml(msg.Phone || 'Unknown');
+        if (isUnread) {
+            html += '<span class="hm-sms-unread-badge">NEW</span>';
+        }
+        html += '</span>';
+        html += '<span class="hm-sms-date">' + escapeHtml(msg.Date || '') + '</span>';
+        html += '</div>';
+        html += '<div class="hm-sms-preview">' + escapeHtml(msg.Content || '') + '</div>';
+        html += '</div>';
+        html += '</div>';
+    });
+    
+    inbox.innerHTML = html;
+}
+
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function escapeJs(text) {
+    return text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+}
+
+function filterSms(filter) {
+    currentFilter = filter;
+    
+    // Update filter buttons
+    document.querySelectorAll('.hm-filter-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-filter') === filter) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Clear selection when changing filter
+    selectedMessages.clear();
+    updateBulkActionsVisibility();
+    
+    renderMessages();
+}
+
+// ===== Selection & Bulk Actions =====
+
+function toggleMessageSelect(msgId, checked) {
+    if (checked) {
+        selectedMessages.add(msgId);
+    } else {
+        selectedMessages.delete(msgId);
+    }
+    updateBulkActionsVisibility();
+    updateSelectAllState();
+    
+    // Update visual state
+    var item = document.querySelector('.hm-sms-item[data-id="' + msgId + '"]');
+    if (item) {
+        if (checked) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    }
+}
+
+function toggleSelectAll() {
+    var selectAll = document.getElementById('select-all');
+    var checkboxes = document.querySelectorAll('.hm-sms-checkbox input[type="checkbox"]');
+    
+    checkboxes.forEach(function(cb) {
+        cb.checked = selectAll.checked;
+        var msgId = cb.closest('.hm-sms-item').getAttribute('data-id');
+        if (selectAll.checked) {
+            selectedMessages.add(msgId);
+            cb.closest('.hm-sms-item').classList.add('selected');
+        } else {
+            selectedMessages.delete(msgId);
+            cb.closest('.hm-sms-item').classList.remove('selected');
+        }
+    });
+    
+    updateBulkActionsVisibility();
+}
+
+function updateSelectAllState() {
+    var checkboxes = document.querySelectorAll('.hm-sms-checkbox input[type="checkbox"]');
+    var selectAll = document.getElementById('select-all');
+    
+    if (checkboxes.length === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+        return;
+    }
+    
+    var checkedCount = 0;
+    checkboxes.forEach(function(cb) {
+        if (cb.checked) checkedCount++;
+    });
+    
+    if (checkedCount === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    } else if (checkedCount === checkboxes.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+    }
+}
+
+function updateBulkActionsVisibility() {
+    var bulkActions = document.getElementById('bulk-actions');
+    var countSpan = document.getElementById('selected-count');
+    
+    if (selectedMessages.size > 0) {
+        bulkActions.classList.remove('hidden');
+        countSpan.innerText = selectedMessages.size + ' selected';
+    } else {
+        bulkActions.classList.add('hidden');
+    }
+}
+
+function bulkMarkAsRead() {
+    if (selectedMessages.size === 0) return;
+    
+    showLoading();
+    var promises = [];
+    var ids = Array.from(selectedMessages);
+    var completed = 0;
+    var errors = 0;
+    
+    function processNext() {
+        if (completed >= ids.length) {
+            hideLoading();
+            if (errors === 0) {
+                showToast(ids.length + ' message(s) marked as read', 'success');
+            } else {
+                showToast('Some messages could not be marked as read', 'warning');
+            }
+            selectedMessages.clear();
+            loadSmsInbox();
+            return;
+        }
+        
+        var msgId = ids[completed];
+        var formData = new FormData();
+        formData.append('device', currentDevice);
+        formData.append('message_id', msgId);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', apiBase + '/modem/sms_read', true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200) {
+                    errors++;
+                }
+                completed++;
+                processNext();
+            }
+        };
+        xhr.send(formData);
+    }
+    
+    processNext();
+}
+
+function confirmBulkDelete() {
+    if (selectedMessages.size === 0) return;
+    
+    document.getElementById('delete-count').innerText = selectedMessages.size;
+    document.getElementById('confirm-modal').classList.add('active');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-modal').classList.remove('active');
+}
+
+function executeBulkDelete() {
+    closeConfirmModal();
+    
+    if (selectedMessages.size === 0) return;
+    
+    showLoading();
+    var ids = Array.from(selectedMessages);
+    var completed = 0;
+    var errors = 0;
+    
+    function processNext() {
+        if (completed >= ids.length) {
+            hideLoading();
+            if (errors === 0) {
+                showToast(ids.length + ' message(s) deleted', 'success');
+            } else {
+                showToast('Some messages could not be deleted', 'warning');
+            }
+            selectedMessages.clear();
+            loadSmsInbox();
+            return;
+        }
+        
+        var msgId = ids[completed];
+        var formData = new FormData();
+        formData.append('device', currentDevice);
+        formData.append('message_id', msgId);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', apiBase + '/modem/sms_delete', true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200) {
+                    errors++;
+                }
+                completed++;
+                processNext();
+            }
+        };
+        xhr.send(formData);
+    }
+    
+    processNext();
+}
+
+// ===== View SMS Modal =====
+
+function viewSms(id, phone, date, content, status) {
+    currentSmsId = id;
+    currentSmsPhone = phone;
+    
+    document.getElementById('modal-sender').innerText = phone || 'Unknown';
+    document.getElementById('modal-date').innerText = date || '';
+    document.getElementById('modal-content').innerText = content.replace(/\\n/g, '\n');
+    
+    document.getElementById('sms-modal').classList.add('active');
+    
+    // Mark as read if unread
+    if (status === '0') {
+        markAsRead(id);
+    }
+}
+
+function markAsRead(msgId) {
+    var formData = new FormData();
+    formData.append('device', currentDevice);
+    formData.append('message_id', msgId);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', apiBase + '/modem/sms_read', true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // Update the message in allMessages
+                for (var i = 0; i < allMessages.length; i++) {
+                    if (allMessages[i].Index === msgId) {
+                        allMessages[i].Smstat = '1';
+                        break;
+                    }
+                }
+                // Update the UI
+                var item = document.querySelector('.hm-sms-item[data-id="' + msgId + '"]');
+                if (item) {
+                    item.classList.remove('unread');
+                    var badge = item.querySelector('.hm-sms-unread-badge');
+                    if (badge) badge.remove();
+                }
+                // Update count
+                loadSmsCount();
+            }
+        }
+    };
+    xhr.send(formData);
+}
+
+function closeSmsModal() {
+    document.getElementById('sms-modal').classList.remove('active');
+    currentSmsId = null;
+    currentSmsPhone = null;
+}
+
+function deleteCurrentSms() {
+    if (!currentSmsId) return;
+    
+    showLoading();
+    
+    var formData = new FormData();
+    formData.append('device', currentDevice);
+    formData.append('message_id', currentSmsId);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', apiBase + '/modem/sms_delete', true);
+    xhr.onreadystatechange = function() {
+        hideLoading();
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                showToast('Message deleted', 'success');
+                closeSmsModal();
+                loadSmsInbox();
+            } else {
+                showToast('Failed to delete message', 'error');
+            }
+        }
+    };
+    xhr.send(formData);
+}
+
+function replyToSms() {
+    if (!currentSmsPhone) return;
+    
+    closeSmsModal();
+    
+    document.getElementById('sms-phone').value = currentSmsPhone;
+    document.getElementById('sms-message').focus();
+    
+    // Scroll to send form
+    document.getElementById('sms-phone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ===== Send SMS =====
+
+function updateCharCount() {
+    var message = document.getElementById('sms-message').value;
+    document.getElementById('char-count').innerText = message.length;
+}
+
+function sendSms() {
+    if (!currentDevice) {
+        showToast('Please select a device first', 'warning');
+        return;
+    }
+
+    var phone = document.getElementById('sms-phone').value.trim();
+    var message = document.getElementById('sms-message').value.trim();
+
+    if (!phone || !message) {
+        showToast('Please enter phone number and message', 'warning');
+        return;
+    }
+
+    showLoading();
+
+    var formData = new FormData();
+    formData.append('device', currentDevice);
+    formData.append('phone', phone);
+    formData.append('message', message);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', apiBase + '/modem/sms_send', true);
+    xhr.onreadystatechange = function() {
+        hideLoading();
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var result = JSON.parse(xhr.responseText);
+                    if (result.success) {
+                        showToast('SMS sent successfully!', 'success');
+                        document.getElementById('sms-phone').value = '';
+                        document.getElementById('sms-message').value = '';
+                        updateCharCount();
+                    } else {
+                        showToast('Failed to send SMS: ' + (result.error || 'Unknown error'), 'error');
+                    }
+                } catch(e) {
+                    showToast('Error parsing response', 'error');
+                }
+            } else {
+                showToast('Failed to send SMS: HTTP ' + xhr.status, 'error');
+            }
+        }
+    };
+    xhr.send(formData);
+}
+
+// Initialize
+loadDevices();
+//]]>
+</script>

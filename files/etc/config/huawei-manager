@@ -1,0 +1,18 @@
+# Huawei Manager Configuration
+# Add devices via LuCI interface
+
+config globals 'globals'
+    option log_level 'INFO'
+
+# Example device configuration (disabled by default)
+# Uncomment and configure when ready to use
+#
+# config device 'device_1'
+#     option name 'My Modem'
+#     option enabled '0'
+#     option modem_url ''
+#     option modem_username ''
+#     option modem_password ''
+#     option check_interval '10'
+#     option reconnect_method 'data'
+#     list target_prefixes ''

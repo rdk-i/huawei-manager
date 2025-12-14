@@ -1,0 +1,135 @@
+<%# Config page header with title and navigation %>
+<h2 name="content"><%:Huawei Manager - Config%></h2>
+
+<%+huawei-manager/navigation%>
+
+<style type="text/css">
+/* Let OpenWRT theme handle tab styling - no custom overrides */
+
+/* Dark theme for form inputs */
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+    border: 1px solid #444 !important;
+}
+
+/* Fix Delete button container background */
+.cbi-section-node > div:first-child,
+.cbi-section-remove {
+    background: #1e1e1e !important;
+    padding: 8px 12px !important;
+    margin-bottom: 10px !important;
+    border-radius: 6px !important;
+}
+
+/* Style the Delete button */
+.cbi-button-remove {
+    background: #e74c3c !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 16px !important;
+    border-radius: 4px !important;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE FIXES ONLY
+   ============================================ */
+@media (max-width: 768px) {
+    /* Stack tabs vertically on mobile */
+    ul.cbi-tabmenu {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+    
+    /* Force label above input on mobile */
+    .cbi-value {
+        display: block !important;
+    }
+    
+    .cbi-value-title {
+        display: block !important;
+        width: 100% !important;
+        float: none !important;
+        text-align: left !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .cbi-value-field {
+        display: block !important;
+        width: 100% !important;
+        float: none !important;
+        margin-left: 0 !important;
+    }
+    
+    /* Make inputs full width on mobile */
+    .cbi-value-field input[type="text"],
+    .cbi-value-field input[type="password"],
+    .cbi-value-field select,
+    .cbi-value-field textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Stack page actions vertically */
+    .cbi-page-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    .cbi-page-actions input[type="submit"] {
+        flex: 1 !important;
+        min-width: 100px !important;
+    }
+}
+</style>
+
+<script type="text/javascript">
+// Auto-switch tab based on URL hash (e.g., #ipagent, #telegram, #general)
+(function() {
+    function switchToHashTab() {
+        var hash = window.location.hash.replace('#', '');
+        if (!hash) return false;
+        
+        // Map hash to tab names used in CBI
+        var tabMap = {
+            'general': 'Settings',
+            'settings': 'Settings',
+            'ipagent': 'IP Agent',
+            'telegram': 'Telegram'
+        };
+        
+        var tabName = tabMap[hash.toLowerCase()];
+        if (!tabName) return false;
+        
+        // Find and click the matching tab
+        var tabs = document.querySelectorAll('ul.cbi-tabmenu li a');
+        for (var i = 0; i < tabs.length; i++) {
+            if (tabs[i].textContent.trim() === tabName) {
+                tabs[i].click();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Try multiple times with increasing delays
+    var attempts = 0;
+    var maxAttempts = 10;
+    
+    function trySwitch() {
+        if (switchToHashTab()) return;
+        attempts++;
+        if (attempts < maxAttempts) {
+            setTimeout(trySwitch, 200);
+        }
+    }
+    
+    // Start trying after initial delay
+    setTimeout(trySwitch, 300);
+})();
+</script>
