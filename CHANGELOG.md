@@ -5,7 +5,7 @@
 - Initial release
 - Dashboard with signal, traffic, device info
 - IP Agent with multi-device support
-- Network settings (bands, APN, USSD)
+- Network settings (bands, APN)
 - Telegram notifications
 - Log viewer
 - SMS management (inbox, send, bulk actions)
